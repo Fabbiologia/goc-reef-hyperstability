@@ -1,0 +1,12 @@
+# Large raw inputs: obtained separately, never committed
+data/CONAPESCA Raw/
+data/*.parquet
+*.rds
+*.csv.gz
+
+# OS / IDE
+.DS_Store
+**/.DS_Store
+.Rproj.user
+.Rhistory
+.RData

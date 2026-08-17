@@ -1,0 +1,8 @@
+quantity,value
+corr_biomass_cpue,-0.427
+corr_biomass_cpue_p,0.0331
+hyperstability_beta_post2008,-0.158
+hyperstability_beta_lo,-0.476
+hyperstability_beta_hi,0.16
+p_proportionality_rejected,1.25e-06
+era_interaction_p,0.12

@@ -1,0 +1,3 @@
+model,term,estimate,se,t,p
+"warming slope, before vs during the heatwave era",ws_anom,0.00708912881928026,0.063707124042439,0.111276861510147,0.911794683731226
+"warming slope, before vs during the heatwave era",ws_anom:era2post,-0.290034858881143,0.0763957794542094,-3.79647751424523,0.000362958425094426

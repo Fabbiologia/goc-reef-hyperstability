@@ -1,0 +1,5 @@
+model,term,estimate,se,t,p
+era change by protection (within reef),erapost,-0.175346658121053,0.112357242581772,-1.56061731395231,0.124798614234816
+era change by protection (within reef),"erapost:grp_protMPA, fishing allowed",-0.0677701619014516,0.131174873735251,-0.516639810442904,0.607640807051694
+era change by protection (within reef),erapost:grp_protno-take (paper park),-0.157588864404375,0.119030220213158,-1.32393995509851,0.191426575174252
+era change by protection (within reef),erapost:grp_protno-take (enforced),0.229429794820217,0.126128637559555,1.81901429571763,0.0747826064867997

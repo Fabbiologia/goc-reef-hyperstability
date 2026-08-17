@@ -1,0 +1,10 @@
+quantity,value
+pelagic_pct_individuals,51.3
+pelagic_pct_production,11.2
+pelagic_pct_biomass,9.2
+onreef_pct_production,57.2
+pelagic_trend_pct_decade,-31.7
+pelagic_trend_p,9.1e-08
+onreef_trend_pct_decade,-7.6
+onreef_trend_p,0.044
+interaction_p,4.3e-05
