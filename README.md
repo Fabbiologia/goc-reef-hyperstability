@@ -2,8 +2,7 @@
 
 Analysis companion repository. It contains the complete, runnable analysis
 behind the manuscript by Favoretto, Carmona-Ruiz, López-Sagástegui, Haddock,
-Fraser, Tamayo, Sánchez-Ortíz, Guidetti, León-Solorzano and Aburto-Oropeza
-(in review): the pipeline that turns the raw survey and landings data into
+León-Solorzano, Fraser and Aburto-Oropeza (in review): the pipeline that turns the raw survey and landings data into
 every intermediate table, every figure and every number quoted in the text.
 The manuscript itself is not distributed here.
 
