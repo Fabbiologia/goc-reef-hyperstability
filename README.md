@@ -1,4 +1,4 @@
-# Hyperstable catch records hid two decades of reef decline in the Gulf of California
+# Hyperstable catch records hid two decades of reef decline
 
 Analysis companion repository. It contains the complete, runnable analysis
 behind the manuscript by Favoretto, Carmona-Ruiz, López-Sagástegui, Haddock,
