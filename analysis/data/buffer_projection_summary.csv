@@ -1,0 +1,10 @@
+quantity,value
+proj_rate_statusquo_pct_decade,-11.7
+proj_rate_climate_pct_decade,-16.4
+proj_sensitivity_pct_perC,-19.2
+proj_warming_C_per_decade,0.27
+proj_anchor_idx_2025,75.1
+half_baseline_year_statusquo,2058
+half_baseline_year_climate,2048
+quarter_baseline_year_statusquo,2113
+quarter_baseline_year_climate,2087

@@ -5,7 +5,7 @@
 # from the pipeline CSVs in manuscript/data/.
 #
 # Outputs (figures/): Figure1_climate_signal, Figure2_reef_community,
-# Figure3_hyperstability, Figure4_living_off_savings, FigureS1..S13
+# Figure3_hyperstability (4 panels incl. the buffer projection), FigureS1..S13
 # (PDF + PNG; S14 is written by 08_gap_analysis.R), and a
 # traceable in_text_statistics.csv with every number quoted in
 # the manuscript.
@@ -373,68 +373,47 @@ p3e <- ggplot(dc, aes(B, l_cpue)) +
   theme(legend.position = "right", legend.key.width = unit(0.35, "cm"),
         legend.text = element_text(size = 6.5))
 
-save_fig(p3n_c / p3d / p3e + patchwork::plot_layout(heights = c(0.95, 1.1, 0.95)),
-         "Figure3_hyperstability", 7.2, 10.6)
+# (d) how long the buffer holds: Worm-style extrapolation of measured rates
+proj <- fread(file.path(DATA, "buffer_projection.csv"))
+pjs  <- fread(file.path(DATA, "buffer_projection_summary.csv"))
+hist_idx <- fread(file.path(DATA, "buffer_timeseries.csv"))[group == "Biomass production"]
+gv <- function(q) pjs[quantity == q, value]
+sc_lv <- c("Status quo", "Fishing plus continued warming")
+proj[, scenario := factor(scenario, levels = sc_lv)]
+p3f <- ggplot() +
+  geom_hline(yintercept = c(50, 25), linetype = 3, linewidth = 0.4, colour = "grey45") +
+  geom_vline(xintercept = 2025.5, linetype = 2, linewidth = 0.4, colour = "grey55") +
+  geom_ribbon(data = proj, aes(Year, ymin = idx_lo, ymax = idx_hi, fill = scenario), alpha = 0.13) +
+  geom_line(data = proj, aes(Year, idx, colour = scenario, linetype = scenario), linewidth = 0.9) +
+  geom_point(data = hist_idx, aes(Year, idx), shape = 18, size = 1.7, colour = "grey25") +
+  scale_colour_manual(values = setNames(c("#1f6f9c", RED), sc_lv), name = NULL) +
+  scale_fill_manual(values = setNames(c("#1f6f9c", RED), sc_lv), name = NULL) +
+  scale_linetype_manual(values = setNames(c("solid", "longdash"), sc_lv), name = NULL) +
+  annotate("text", x = 1999, y = 54, label = "half the baseline", hjust = 0,
+           size = 2.4, colour = "grey30") +
+  annotate("text", x = 1999, y = 29, label = "a quarter", hjust = 0,
+           size = 2.4, colour = "grey30") +
+  annotate("label", x = gv("half_baseline_year_climate"), y = 50,
+           label = gv("half_baseline_year_climate"), size = 2.5, colour = RED,
+           fontface = "bold", label.padding = unit(0.12, "lines"), label.size = 0) +
+  annotate("label", x = gv("half_baseline_year_statusquo"), y = 50,
+           label = gv("half_baseline_year_statusquo"), size = 2.5, colour = "#1f6f9c",
+           fontface = "bold", label.padding = unit(0.12, "lines"), label.size = 0) +
+  scale_x_continuous(breaks = seq(2000, 2060, 10), limits = c(1998, 2061)) +
+  coord_cartesian(ylim = c(0, 142)) +
+  labs(x = NULL, y = "Production (% of 1998 to 2004 baseline)", title = "d") +
+  theme(legend.position = c(0.97, 0.97), legend.justification = c(1, 1),
+        legend.background = element_rect(fill = alpha("white", 0.7), colour = NA),
+        legend.key.size = unit(0.8, "lines"), legend.text = element_text(size = 6.8))
+
+save_fig((p3n_c | p3d) / (p3e | p3f), "Figure3_hyperstability", 8.6, 7.8)
 save_fig(p3c, "FigureS9_reef_value", 7, 4.6)
 
-# ===========================================================
-# FIGURE 4 -- living off the buffer, then off the savings
-# ===========================================================
-bt <- fread(file.path(DATA, "buffer_timeseries.csv"))
-br <- fread(file.path(DATA, "buffer_regime_rates.csv"))
-
-wide <- dcast(bt, Year ~ group, value.var = "idx")
-setnames(wide, c("Standing biomass", "Biomass production"), c("bio", "pro"))
-bt[, group := factor(group, levels = c("Standing biomass", "Biomass production"))]
-p4a <- ggplot() +
-  geom_rect(data = mhwyr, inherit.aes = FALSE,
-            aes(xmin = x1, xmax = x2, ymin = -Inf, ymax = Inf), fill = "grey80", alpha = 0.5) +
-  geom_hline(yintercept = 100, linetype = 3, linewidth = 0.4, colour = "grey35") +
-  geom_ribbon(data = wide, aes(Year, ymin = pmin(bio, pro), ymax = pmax(bio, pro)),
-              fill = "#f0c948", alpha = 0.35) +
-  geom_line(data = bt, aes(Year, idx, colour = group, linetype = group), linewidth = 0.9) +
-  geom_point(data = bt, aes(Year, idx, colour = group, shape = group), size = 1.4) +
-  scale_colour_manual(values = c("Standing biomass" = "#7b241c",
-                                 "Biomass production" = "#1f77b4"), name = NULL) +
-  scale_linetype_manual(values = c("Standing biomass" = "solid",
-                                   "Biomass production" = "dashed"), name = NULL) +
-  scale_shape_manual(values = c("Standing biomass" = 16, "Biomass production" = 15), name = NULL) +
-  scale_x_continuous(breaks = seq(1998, 2024, 4)) +
-  annotate("text", x = 2011.4, y = 132, label = "the buffer: production held\nwhile the stock fell",
-           size = 2.7, colour = "#8a6d1a", lineheight = 0.95) +
-  labs(x = NULL, y = "% of the 1998 to 2004 baseline", title = "a") +
-  theme(legend.position = c(0.015, 0.05), legend.justification = c(0, 0),
-        legend.background = element_rect(fill = alpha("white", 0.7), colour = NA),
-        legend.key.size = unit(0.8, "lines"), legend.text = element_text(size = 7))
-
-br <- br[regime != "Neither (reference)"]
-br[, regime := factor(regime, levels = c("Fishing only", "Climate only", "Both"))]
-br[, response := factor(response, levels = c("Biomass (the savings)", "Production (the buffer)"))]
-p4b <- ggplot(br, aes(regime, pct_per_decade, fill = response)) +
-  geom_hline(yintercept = 0, linewidth = 0.4) +
-  geom_col(position = position_dodge(width = 0.7), width = 0.62) +
-  geom_errorbar(aes(ymin = lo, ymax = hi), position = position_dodge(width = 0.7),
-                width = 0.18, linewidth = 0.45) +
-  scale_fill_manual(values = c("Biomass (the savings)" = "#7b241c",
-                               "Production (the buffer)" = "#1f77b4"), name = NULL) +
-  scale_x_discrete(labels = c(
-    "Fishing only" = "Fishing only\nfished reefs, 1998 to 2013",
-    "Climate only" = "Climate only\nenforced no-take, 2014 to 2025",
-    "Both"         = "Both\nfished reefs, 2014 to 2025")) +
-  labs(x = NULL, y = "Rate of change (% per decade, 95% CI)", title = "b") +
-  theme(legend.position = c(0.985, 0.03), legend.justification = c(1, 0),
-        legend.background = element_rect(fill = alpha("white", 0.7), colour = NA),
-        legend.key.size = unit(0.8, "lines"), legend.text = element_text(size = 7))
-
-save_fig(p4a / p4b + patchwork::plot_layout(heights = c(1, 0.9)),
-         "Figure4_living_off_savings", 7.5, 8.2)
-
-bs <- fread(file.path(DATA, "buffer_summary.csv"))
-for (i in seq_len(nrow(bs))) addstat(bs$quantity[i], bs$value[i])
-addstat("biomass_idx_2025_pct_of_baseline",
-        round(bt[group == "Standing biomass"][Year == max(Year), idx]))
-addstat("production_idx_2025_pct_of_baseline",
-        round(bt[group == "Biomass production"][Year == max(Year), idx]))
+for (q in c("proj_rate_statusquo_pct_decade", "proj_rate_climate_pct_decade",
+            "proj_sensitivity_pct_perC", "proj_warming_C_per_decade",
+            "half_baseline_year_statusquo", "half_baseline_year_climate",
+            "quarter_baseline_year_statusquo", "quarter_baseline_year_climate"))
+  addstat(q, gv(q))
 
 # the per-reef paired changes move to the Supplementary
 save_fig(p3a, "FigureS2_reef_paired_change", 7, 6.5)

@@ -107,6 +107,74 @@ message("\nRegime rates (% per decade, reef FE, reef-clustered):")
 print(rates[, .(regime, response, pct_per_decade = round(pct_per_decade, 1),
                 lo = round(lo, 1), hi = round(hi, 1), p = signif(p, 2), n_reefs)])
 
+# --- (c) the projection: how long the buffer holds -----------------------
+# Two log-linear extrapolations of measured rates, anchored at the fitted
+# 2025 level of the production index. Status quo continues the full-record
+# production trend (everything as it has been, fishing and climate as
+# experienced). The second scenario adds the measured thermal sensitivity of
+# production on fished reefs, applied to the basin's ongoing warming trend.
+# These are extrapolations of measured rates for timing, not population
+# forecasts, and are labelled as such in the caption and Methods.
+
+# full-record production trend on the panel, with clustered SE
+d_all <- copy(tr)[!is.na(p100)]
+d_all[, l_v := log(p100 + 0.01)]
+fit_all <- lm(l_v ~ Year + Reef, data = d_all)
+cb_all  <- clust_beta(fit_all, d_all$Reef, "Year")
+r1    <- cb_all$beta                       # log rate per year
+r1_lo <- cb_all$beta - 1.96 * cb_all$se
+r1_hi <- cb_all$beta + 1.96 * cb_all$se
+
+# thermal sensitivity: mean per-reef production response on fished reefs
+rts <- fread(file.path(DATA, "reef_thermal_slopes.csv"))
+rts <- merge(rts, prot[, .(Reef, enforced)], by = "Reef")
+sens_pct_perC <- rts[enforced == FALSE & !is.na(slope), mean(slope)]
+
+# basin warming trend, C per decade, from the same monthly series as Fig 1
+mon <- fread(file.path("../data/env", "sst_gulf_monthly_1981_2026.csv"))
+mon[, `:=`(yr = as.integer(substr(month, 1, 4)), mo = as.integer(substr(month, 6, 7)))]
+cl  <- mon[yr %between% c(1991, 2020), .(clim = mean(mean_sst)), by = mo]
+mon <- merge(mon, cl, by = "mo")
+mon[, anom := mean_sst - clim]
+warm_dec <- coef(lm(anom ~ I(yr + (mo - 0.5) / 12), data = mon))[2] * 10
+
+# climate penalty as a log rate per year
+pen <- log(1 + (sens_pct_perC / 100) * warm_dec) / 10
+r2 <- r1 + pen; r2_lo <- r1_lo + pen; r2_hi <- r1_hi + pen
+message(sprintf("Projection rates: status quo %.1f %%/decade; + warming %.1f %%/decade (sens %.1f %%/C x %.2f C/decade)",
+                100 * (exp(10 * r1) - 1), 100 * (exp(10 * r2) - 1), sens_pct_perC, warm_dec))
+
+# anchor: fitted index level at 2025 from the annual index series
+idx <- res[group == "Biomass production", .(Year, idx)]
+af  <- lm(log(idx) ~ Year, data = idx)
+idx0 <- exp(predict(af, data.frame(Year = 2025)))
+
+proj_years <- 2025:2055
+proj <- rbindlist(list(
+  data.table(scenario = "Status quo", Year = proj_years,
+             idx    = idx0 * exp(r1    * (proj_years - 2025)),
+             idx_lo = idx0 * exp(r1_lo * (proj_years - 2025)),
+             idx_hi = idx0 * exp(r1_hi * (proj_years - 2025))),
+  data.table(scenario = "Fishing plus continued warming", Year = proj_years,
+             idx    = idx0 * exp(r2    * (proj_years - 2025)),
+             idx_lo = idx0 * exp(r2_lo * (proj_years - 2025)),
+             idx_hi = idx0 * exp(r2_hi * (proj_years - 2025)))))
+fwrite(proj, file.path(OUT, "buffer_projection.csv"))
+
+cross_year <- function(r, level) 2025 + log(level / idx0) / r
+crossings <- data.table(
+  quantity = c("proj_rate_statusquo_pct_decade", "proj_rate_climate_pct_decade",
+               "proj_sensitivity_pct_perC", "proj_warming_C_per_decade",
+               "proj_anchor_idx_2025",
+               "half_baseline_year_statusquo", "half_baseline_year_climate",
+               "quarter_baseline_year_statusquo", "quarter_baseline_year_climate"),
+  value = c(round(100 * (exp(10 * r1) - 1), 1), round(100 * (exp(10 * r2) - 1), 1),
+            round(sens_pct_perC, 1), round(warm_dec, 2), round(idx0, 1),
+            round(cross_year(r1, 50)), round(cross_year(r2, 50)),
+            round(cross_year(r1, 25)), round(cross_year(r2, 25))))
+fwrite(crossings, file.path(OUT, "buffer_projection_summary.csv"))
+print(crossings)
+
 gr <- function(rg, rs, col) rates[regime == rg & response == rs][[col]]
 summ <- data.table(quantity = c(
   "fishingonly_biomass_pct_decade", "fishingonly_production_pct_decade",
