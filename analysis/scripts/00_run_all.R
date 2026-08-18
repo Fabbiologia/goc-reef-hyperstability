@@ -35,11 +35,12 @@ steps <- c(
   "03_ltem_analysis.R",        # reef warming betas + Fig-2 trajectories
   "03b_productivity.R",        # production + turnover on the same panel (Fig 2c,d)
   "03c_pathways.R",            # energy pathways + subsidy interaction (Fig 3)
+  "03d_buffer.R",              # buffer over time + regime rates (Fig 4)
   "04_fishery_analysis.R",     # CPUE two-mode + lag scans
   "05_variation_partitioning.R",
   "06_economic_value.R",       # 5-state + La Paz/Loreto ex-vessel value
   "07_decoupling.R",           # survey vs landings: hyperstability test
-  "08_gap_analysis.R",         # climate vs fishing vs combined; Figure S12
+  "08_gap_analysis.R",         # climate vs fishing vs combined; Figure S14
   "09_figures.R"               # all figures + in_text_statistics.csv (runs last)
 )
 

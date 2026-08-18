@@ -166,6 +166,11 @@ panels <- list("Whole community"        = zero_fill(agg),
                "Commercial species"     = zero_fill(agg_c),
                "Non-commercial species" = zero_fill(agg_n))
 
+# transect-level table for the buffer analysis (03d)
+fwrite(panels[["Whole community"]][, .(Year, Region, Reef, Habitat, Depth2, Transect,
+                                       Area, b100, p100, turnover)],
+       file.path(OUT, "productivity_transects.csv"))
+
 med <- panels[["Whole community"]][b > 0]
 message(sprintf("Panel medians: biomass %.1f g/m2, production %.1f g/m2/yr, turnover %.3f%%/day",
                 med[, median(b100 / 100)], med[, median(p100 / 100 * 365)],

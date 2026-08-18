@@ -5,8 +5,8 @@
 # from the pipeline CSVs in manuscript/data/.
 #
 # Outputs (figures/): Figure1_climate_signal, Figure2_reef_community,
-# Figure3_energy_pathways, Figure4_economic_exposure, FigureS1..S11 (PDF + PNG; S12 is
-# written by 08_gap_analysis.R), and a
+# Figure3_hyperstability, Figure4_living_off_savings, FigureS1..S13
+# (PDF + PNG; S14 is written by 08_gap_analysis.R), and a
 # traceable in_text_statistics.csv with every number quoted in
 # the manuscript.
 #
@@ -224,10 +224,11 @@ p3n_c <- ggplot(rts[!is.na(slope)], aes(share, slope)) +
   geom_smooth(method = "lm", colour = RED, fill = RED, alpha = 0.15, linewidth = 0.7) +
   geom_point(size = 1.8, colour = "black") +
   labs(x = "Reef pelagic share of production (%)",
-       y = "Production response to warm years\n(% per °C, per reef)", title = "c")
+       y = "Production response to warm years\n(% per °C, per reef)", title = "a")
 
-fig3new <- p3n_a / (p3n_b | p3n_c) + patchwork::plot_layout(heights = c(0.75, 1))
-save_fig(fig3new, "Figure3_energy_pathways", 8.2, 6.4)
+# shares + pathway series move to the Supplementary (Fig. S5)
+save_fig(p3n_a / p3n_b + patchwork::plot_layout(heights = c(0.8, 1)),
+         "FigureS5_energy_pathways", 7.5, 7.2)
 
 addstat("pelagic_pct_individuals", psh[pathway == "Pelagic (planktivory)", round(pct_individuals, 1)])
 addstat("pelagic_pct_production",  psh[pathway == "Pelagic (planktivory)", round(pct_production, 1)])
@@ -304,8 +305,7 @@ p3c <- ggplot(sp, aes(value_Myr, lab, fill = status)) +
     "Significant increase"             = "#2ca25f",
     "Not monitored on the reefs"       = "#d5d8dc"), name = NULL) +
   scale_x_continuous(limits = c(0, max(sp$value_Myr) * 1.22), expand = expansion(mult = c(0, 0))) +
-  labs(x = "Mean annual ex-vessel value 2022 to 2025 (million MXN)", y = NULL,
-       title = "b") +
+  labs(x = "Mean annual ex-vessel value 2022 to 2025 (million USD)", y = NULL) +
   guides(fill = guide_legend(ncol = 2)) +
   theme(legend.position = "bottom", legend.text = element_text(size = 6.5),
         legend.key.size = unit(0.7, "lines"))
@@ -348,8 +348,8 @@ p3d <- ggplot() +
     "Reef fish biomass (surveys)"   = "#7b241c"), name = NULL) +
   scale_y_continuous(limits = c(0, ymax)) +
   scale_x_continuous(breaks = seq(1998, 2024, 4)) +
-  labs(x = NULL, y = "Percent of the 1998 to 2004 average",
-       title = "a") +
+  labs(x = NULL, y = "% of the 1998 to 2004 baseline",
+       title = "b") +
   guides(colour = guide_legend(nrow = 2, order = 1),
          fill   = guide_legend(nrow = 1, order = 2)) +
   theme(legend.position = c(0.02, 0.97), legend.justification = c(0, 1),
@@ -373,8 +373,68 @@ p3e <- ggplot(dc, aes(B, l_cpue)) +
   theme(legend.position = "right", legend.key.width = unit(0.35, "cm"),
         legend.text = element_text(size = 6.5))
 
-save_fig(p3d / p3c / p3e + patchwork::plot_layout(heights = c(1, 1.35, 1)),
-         "Figure4_economic_exposure", 7.6, 10.4)
+save_fig(p3n_c / p3d / p3e + patchwork::plot_layout(heights = c(0.95, 1.1, 0.95)),
+         "Figure3_hyperstability", 7.2, 10.6)
+save_fig(p3c, "FigureS9_reef_value", 7, 4.6)
+
+# ===========================================================
+# FIGURE 4 -- living off the buffer, then off the savings
+# ===========================================================
+bt <- fread(file.path(DATA, "buffer_timeseries.csv"))
+br <- fread(file.path(DATA, "buffer_regime_rates.csv"))
+
+wide <- dcast(bt, Year ~ group, value.var = "idx")
+setnames(wide, c("Standing biomass", "Biomass production"), c("bio", "pro"))
+bt[, group := factor(group, levels = c("Standing biomass", "Biomass production"))]
+p4a <- ggplot() +
+  geom_rect(data = mhwyr, inherit.aes = FALSE,
+            aes(xmin = x1, xmax = x2, ymin = -Inf, ymax = Inf), fill = "grey80", alpha = 0.5) +
+  geom_hline(yintercept = 100, linetype = 3, linewidth = 0.4, colour = "grey35") +
+  geom_ribbon(data = wide, aes(Year, ymin = pmin(bio, pro), ymax = pmax(bio, pro)),
+              fill = "#f0c948", alpha = 0.35) +
+  geom_line(data = bt, aes(Year, idx, colour = group, linetype = group), linewidth = 0.9) +
+  geom_point(data = bt, aes(Year, idx, colour = group, shape = group), size = 1.4) +
+  scale_colour_manual(values = c("Standing biomass" = "#7b241c",
+                                 "Biomass production" = "#1f77b4"), name = NULL) +
+  scale_linetype_manual(values = c("Standing biomass" = "solid",
+                                   "Biomass production" = "dashed"), name = NULL) +
+  scale_shape_manual(values = c("Standing biomass" = 16, "Biomass production" = 15), name = NULL) +
+  scale_x_continuous(breaks = seq(1998, 2024, 4)) +
+  annotate("text", x = 2011.4, y = 132, label = "the buffer: production held\nwhile the stock fell",
+           size = 2.7, colour = "#8a6d1a", lineheight = 0.95) +
+  labs(x = NULL, y = "% of the 1998 to 2004 baseline", title = "a") +
+  theme(legend.position = c(0.015, 0.05), legend.justification = c(0, 0),
+        legend.background = element_rect(fill = alpha("white", 0.7), colour = NA),
+        legend.key.size = unit(0.8, "lines"), legend.text = element_text(size = 7))
+
+br <- br[regime != "Neither (reference)"]
+br[, regime := factor(regime, levels = c("Fishing only", "Climate only", "Both"))]
+br[, response := factor(response, levels = c("Biomass (the savings)", "Production (the buffer)"))]
+p4b <- ggplot(br, aes(regime, pct_per_decade, fill = response)) +
+  geom_hline(yintercept = 0, linewidth = 0.4) +
+  geom_col(position = position_dodge(width = 0.7), width = 0.62) +
+  geom_errorbar(aes(ymin = lo, ymax = hi), position = position_dodge(width = 0.7),
+                width = 0.18, linewidth = 0.45) +
+  scale_fill_manual(values = c("Biomass (the savings)" = "#7b241c",
+                               "Production (the buffer)" = "#1f77b4"), name = NULL) +
+  scale_x_discrete(labels = c(
+    "Fishing only" = "Fishing only\nfished reefs, 1998 to 2013",
+    "Climate only" = "Climate only\nenforced no-take, 2014 to 2025",
+    "Both"         = "Both\nfished reefs, 2014 to 2025")) +
+  labs(x = NULL, y = "Rate of change (% per decade, 95% CI)", title = "b") +
+  theme(legend.position = c(0.985, 0.03), legend.justification = c(1, 0),
+        legend.background = element_rect(fill = alpha("white", 0.7), colour = NA),
+        legend.key.size = unit(0.8, "lines"), legend.text = element_text(size = 7))
+
+save_fig(p4a / p4b + patchwork::plot_layout(heights = c(1, 0.9)),
+         "Figure4_living_off_savings", 7.5, 8.2)
+
+bs <- fread(file.path(DATA, "buffer_summary.csv"))
+for (i in seq_len(nrow(bs))) addstat(bs$quantity[i], bs$value[i])
+addstat("biomass_idx_2025_pct_of_baseline",
+        round(bt[group == "Standing biomass"][Year == max(Year), idx]))
+addstat("production_idx_2025_pct_of_baseline",
+        round(bt[group == "Biomass production"][Year == max(Year), idx]))
 
 # the per-reef paired changes move to the Supplementary
 save_fig(p3a, "FigureS2_reef_paired_change", 7, 6.5)
@@ -408,11 +468,19 @@ if (file.exists(latf)) {
   dm <- merge(dm, cl, by = c("lat_degree","mo"))[, anom := sst - clim]
   dm[, yf := yr + (mo-0.5)/12]
   dm[, anomd := anom - predict(lm(anom ~ yf)), by = lat_degree]   # detrend per band
-  dm[, dt := as.Date(sprintf("%d-%02d-01", yr, mo))]
-  s1 <- ggplot(dm, aes(dt, factor(lat_degree), fill = anomd)) +
+  # Decimal-year x gives perfectly even monthly spacing, so the raster is
+  # seamless (Date x leaves hairline gaps because months differ in length).
+  # Each band's removed warming trend is annotated in its axis label.
+  tr <- fread(file.path(DATA, "sst_trend_by_latitude.csv"))
+  lat_lab <- setNames(sprintf("%d  (+%.2f)", tr$lat_degree, tr$trend_dec),
+                      as.character(tr$lat_degree))
+  s1 <- ggplot(dm, aes(yf, factor(lat_degree), fill = anomd)) +
     geom_raster() +
     scale_fill_gradient2(low = BLUE, mid = "white", high = RED, midpoint = 0, name = "Anomaly (°C)") +
-    labs(x = NULL, y = "Latitude (°N)")
+    scale_x_continuous(breaks = seq(1985, 2025, 5), expand = c(0, 0)) +
+    scale_y_discrete(labels = lat_lab, expand = c(0, 0)) +
+    labs(x = NULL, y = "Latitude (°N), removed warming trend in parentheses (°C per decade)") +
+    theme(panel.grid = element_blank(), axis.text.y = element_text(size = 7.5))
   save_fig(s1, "FigureS1_sst_by_latitude", 8, 5)
 }
 
@@ -457,7 +525,7 @@ s6a <- ggplot(yt, aes(year, landings_t)) + geom_col(fill = ORANGE) +
 s6b <- ggplot(yt, aes(year, folios)) + geom_col(fill = BLUE) +
   geom_vline(xintercept = 2022, linetype = 2) +
   labs(x = NULL, y = "Trip notices (folios)", title = "b")
-save_fig(s6a / s6b, "FigureS8_fishery_activity", 7, 5)
+save_fig(s6a / s6b, "FigureS10_fishery_activity", 7, 5)
 
 # S7 -- rocky reef aggregate CPUE with marine heatwave windows
 s7 <- ggplot(reef_yr, aes(year)) +
@@ -468,7 +536,7 @@ s7 <- ggplot(reef_yr, aes(year)) +
   geom_smooth(aes(y = CPUE), method = "loess", se = FALSE, colour = RED,
               linewidth = 0.6, span = 0.6) +
   labs(x = NULL, y = "CPUE (t per trip)")
-save_fig(s7, "FigureS5_reef_cpue_trend", 7, 4)
+save_fig(s7, "FigureS6_reef_cpue_trend", 7, 4)
 
 # S8 -- per reef-species CPUE (the species modelled in 04)
 reef_sp <- fread(file.path(DATA, "reef_species_two_mode.csv"))$species
@@ -484,7 +552,7 @@ s8 <- ggplot(sp_yr, aes(year, CPUE)) +
   geom_smooth(method = "loess", se = FALSE, colour = RED, linewidth = 0.6, span = 0.7) +
   facet_wrap(~species, scales = "free_y") +
   labs(x = NULL, y = "CPUE (t per trip)")
-save_fig(s8, "FigureS6_reef_species_cpue", 9, 6)
+save_fig(s8, "FigureS7_reef_species_cpue", 9, 6)
 
 # S4 -- two-timescale climate response: per-species lag scan + per-bloc two-mode
 lagsp <- fread(file.path(DATA, "lag_scan_per_species.csv"))
@@ -505,7 +573,7 @@ s4b <- ggplot(bml, aes(beta, bloc, fill = mode)) +
   geom_vline(xintercept = 0, linewidth = 0.3) +
   labs(x = "β on warm-season anomaly", y = NULL, title = "b") +
   theme(legend.position = "bottom")
-save_fig(s4a / s4b, "FigureS9_lag_effects", 7, 7)
+save_fig(s4a / s4b, "FigureS11_lag_effects", 7, 7)
 
 # S5 -- per-bloc long-run CPUE trend (%/yr) + two-mode sensitivity
 bm[, year_pct := (exp(beta_year) - 1) * 100]
@@ -513,7 +581,7 @@ s5a <- ggplot(bm[order(year_pct)], aes(year_pct, factor(bloc, levels = bloc))) +
   geom_col(fill = BLUE) + geom_vline(xintercept = 0, linewidth = 0.3) +
   labs(x = "CPUE trend (%/yr)", y = NULL, title = "a")
 s5 <- s5a / s4b
-save_fig(s5, "FigureS10_reef_fishery", 7, 7)
+save_fig(s5, "FigureS12_reef_fishery", 7, 7)
 
 # S9 -- Borcard variance partitioning
 vp <- fread(file.path(DATA, "varpart_two_mode.csv"))
@@ -527,7 +595,7 @@ s9 <- ggplot(vpl, aes(pct, species, fill = component)) +
                                Shared = GREEN, Unexplained = GREY), name = NULL) +
   labs(x = "Share of explained + unexplained variance (%)", y = NULL) +
   theme(legend.position = "bottom")
-save_fig(s9, "FigureS11_variance_partitioning", 7, 4)
+save_fig(s9, "FigureS13_variance_partitioning", 7, 4)
 
 # S11 -- five-state artisanal value composition (moved out of Figure 3)
 e5 <- fread(file.path(DATA, "economic_5state_artisanal.csv"))
@@ -546,7 +614,7 @@ s11 <- ggplot(e5, aes(factor(year), value_M, fill = st)) +
   scale_y_continuous(limits = c(0, max(tot$tot_M) * 1.12), expand = expansion(mult = c(0, 0.03))) +
   labs(x = "Year", y = "Small-scale market value (million US$)") +
   theme(legend.position = "bottom", legend.key.size = unit(0.8, "lines"))
-save_fig(s11, "FigureS7_state_value", 7, 4.5)
+save_fig(s11, "FigureS8_state_value", 7, 4.5)
 
 # ===========================================================
 fwrite(rbindlist(stat_rows), file.path(OUT, "in_text_statistics.csv"))

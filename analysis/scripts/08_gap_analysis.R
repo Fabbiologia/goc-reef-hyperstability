@@ -397,7 +397,7 @@ add("mhw_days_per_warm_season_before", round(regime[era == "1998-2013", mhw_days
 add("mhw_days_per_warm_season_after",  round(regime[era == "2014-2025", mhw_days], 1))
 
 # -----------------------------------------------------------
-# Figure S12: the gap analysis in one display
+# Figure S14: the gap analysis in one display
 # -----------------------------------------------------------
 RED <- "#c0392b"; BLUE <- "#1f6f9c"; GREY <- "#95a5a6"
 theme_set(theme_classic(base_size = 9) +
@@ -446,9 +446,9 @@ pdd <- ggplot(sl, aes(beta, grp, fill = grp)) +
        title = "d   Fished taxa lose most per degree of warming")
 
 fig <- (pa | pb) / (pc_fig | pdd)
-ggsave(file.path("figures", "FigureS12_gap_analysis.pdf"), fig, width = 9.5, height = 6.5)
-ggsave(file.path("figures", "FigureS12_gap_analysis.png"), fig, width = 9.5, height = 6.5, dpi = 300)
-message("wrote FigureS12_gap_analysis (.pdf/.png)")
+ggsave(file.path("figures", "FigureS14_gap_analysis.pdf"), fig, width = 9.5, height = 6.5)
+ggsave(file.path("figures", "FigureS14_gap_analysis.png"), fig, width = 9.5, height = 6.5, dpi = 300)
+message("wrote FigureS14_gap_analysis (.pdf/.png)")
 
 # ===========================================================
 # 4. TROPICALISATION, AND WHETHER IT REACHES THE FISH

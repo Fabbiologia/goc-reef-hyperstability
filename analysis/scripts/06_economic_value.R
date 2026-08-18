@@ -118,6 +118,10 @@ add_ts("reef_cpue_pct_below_peak",       round(100 * (rec$cpue / ts[year == pk$y
 # -----------------------------------------------------------
 ll <- goc[grepl("LA PAZ|LORETO", oficina) & is_reef == TRUE & year %in% ECON_YEARS]
 ll <- ll[!is.na(reef_group) & reef_group != ""]
+# The Pacific red snapper (huachinango, Lutjanus peru) is landed from deeper
+# banks, not the shallow rocky reefs the survey monitors, so it is excluded
+# from the reef-value panel and its summary numbers.
+ll <- ll[reef_group != "Pacific red snapper"]
 sp_mean <- ll[, .(value_Myr  = sum(value_usd,  na.rm = TRUE) / length(ECON_YEARS) / 1e6,
                   landings_t = sum(landings_t, na.rm = TRUE) / length(ECON_YEARS)),
               by = reef_group][order(-value_Myr)]
