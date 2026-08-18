@@ -376,31 +376,32 @@ p3e <- ggplot(dc, aes(B, l_cpue)) +
 # (d) how long the buffer holds: Worm-style extrapolation of measured rates
 proj <- fread(file.path(DATA, "buffer_projection.csv"))
 pjs  <- fread(file.path(DATA, "buffer_projection_summary.csv"))
-hist_idx <- fread(file.path(DATA, "buffer_timeseries.csv"))[group == "Biomass production"]
 gv <- function(q) pjs[quantity == q, value]
 sc_lv <- c("Status quo", "Fishing plus continued warming")
 proj[, scenario := factor(scenario, levels = sc_lv)]
 p3f <- ggplot() +
+  geom_hline(yintercept = 100, linetype = 3, linewidth = 0.4, colour = "grey60") +
   geom_hline(yintercept = c(50, 25), linetype = 3, linewidth = 0.4, colour = "grey45") +
-  geom_vline(xintercept = 2025.5, linetype = 2, linewidth = 0.4, colour = "grey55") +
   geom_ribbon(data = proj, aes(Year, ymin = idx_lo, ymax = idx_hi, fill = scenario), alpha = 0.13) +
-  geom_line(data = proj, aes(Year, idx, colour = scenario, linetype = scenario), linewidth = 0.9) +
-  geom_point(data = hist_idx, aes(Year, idx), shape = 18, size = 1.7, colour = "grey25") +
+  geom_line(data = proj, aes(Year, idx, colour = scenario, linetype = scenario), linewidth = 0.95) +
   scale_colour_manual(values = setNames(c("#1f6f9c", RED), sc_lv), name = NULL) +
   scale_fill_manual(values = setNames(c("#1f6f9c", RED), sc_lv), name = NULL) +
   scale_linetype_manual(values = setNames(c("solid", "longdash"), sc_lv), name = NULL) +
-  annotate("text", x = 1999, y = 54, label = "half the baseline", hjust = 0,
+  annotate("text", x = 2025.6, y = 103.5, label = "the 1998 to 2004 baseline", hjust = 0,
+           size = 2.4, colour = "grey45") +
+  annotate("text", x = 2025.6, y = 53.5, label = "half the baseline", hjust = 0,
            size = 2.4, colour = "grey30") +
-  annotate("text", x = 1999, y = 29, label = "a quarter", hjust = 0,
+  annotate("text", x = 2025.6, y = 28.5, label = "a quarter", hjust = 0,
            size = 2.4, colour = "grey30") +
   annotate("label", x = gv("half_baseline_year_climate"), y = 50,
-           label = gv("half_baseline_year_climate"), size = 2.5, colour = RED,
+           label = gv("half_baseline_year_climate"), size = 2.6, colour = RED,
            fontface = "bold", label.padding = unit(0.12, "lines"), label.size = 0) +
   annotate("label", x = gv("half_baseline_year_statusquo"), y = 50,
-           label = gv("half_baseline_year_statusquo"), size = 2.5, colour = "#1f6f9c",
+           label = gv("half_baseline_year_statusquo"), size = 2.6, colour = "#1f6f9c",
            fontface = "bold", label.padding = unit(0.12, "lines"), label.size = 0) +
-  scale_x_continuous(breaks = seq(2000, 2060, 10), limits = c(1998, 2061)) +
-  coord_cartesian(ylim = c(0, 142)) +
+  scale_x_continuous(breaks = seq(2025, 2060, 5), limits = c(2025, 2060.5),
+                     expand = expansion(mult = c(0, 0.02))) +
+  coord_cartesian(ylim = c(0, 108)) +
   labs(x = NULL, y = "Production (% of 1998 to 2004 baseline)", title = "d") +
   theme(legend.position = c(0.97, 0.97), legend.justification = c(1, 1),
         legend.background = element_rect(fill = alpha("white", 0.7), colour = NA),
