@@ -138,46 +138,50 @@ mon <- merge(mon, cl, by = "mo")
 mon[, anom := mean_sst - clim]
 warm_dec <- coef(lm(anom ~ I(yr + (mo - 0.5) / 12), data = mon))[2] * 10
 
-# climate penalty as a log rate per year
-pen <- log(1 + (sens_pct_perC / 100) * warm_dec) / 10
-r2 <- r1 + pen; r2_lo <- r1_lo + pen; r2_hi <- r1_hi + pen
-message(sprintf("Projection rates: status quo %.1f %%/decade; + warming %.1f %%/decade (sens %.1f %%/C x %.2f C/decade)",
-                100 * (exp(10 * r1) - 1), 100 * (exp(10 * r2) - 1), sens_pct_perC, warm_dec))
+# The observed trend already contains the warming the record experienced, so
+# the two full-timeline lines are: the observed trajectory continued (fishing
+# plus warming), and the counterfactual with the measured thermal component
+# removed (fishing alone). The wedge between them is the accumulating cost of
+# the climate signal, widening as the anomaly keeps rising.
+pen <- log(1 + (sens_pct_perC / 100) * warm_dec) / 10   # thermal component, log/yr
+r_with    <- r1;            r_with_lo <- r1_lo;       r_with_hi <- r1_hi
+r_without <- r1 - pen;      r_without_lo <- r1_lo - pen; r_without_hi <- r1_hi - pen
+message(sprintf("Rates: with warming %.1f %%/decade; fishing alone %.1f %%/decade (thermal component %.1f %%/decade)",
+                100 * (exp(10 * r_with) - 1), 100 * (exp(10 * r_without) - 1),
+                100 * (exp(10 * pen) - 1)))
 
 # anchor: fitted index level at 2025 from the annual index series
 idx <- res[group == "Biomass production", .(Year, idx)]
 af  <- lm(log(idx) ~ Year, data = idx)
 idx0 <- exp(predict(af, data.frame(Year = 2025)))
+idx98 <- idx0 * exp(r_with * (1998 - 2025))   # both lines share the 1998 anchor
 
-proj_years <- 2025:2060
-hist_years <- 1998:2025
-proj <- rbindlist(list(
-  # the record's own fitted trend, drawn back to 1998 so the projections
-  # visibly continue the observed decline rather than starting in mid-air
-  data.table(scenario = "Observed trend, 1998 to 2025", Year = hist_years,
-             idx    = idx0 * exp(r1 * (hist_years - 2025)),
-             idx_lo = NA_real_, idx_hi = NA_real_),
-  data.table(scenario = "Status quo", Year = proj_years,
-             idx    = idx0 * exp(r1    * (proj_years - 2025)),
-             idx_lo = idx0 * exp(r1_lo * (proj_years - 2025)),
-             idx_hi = idx0 * exp(r1_hi * (proj_years - 2025))),
-  data.table(scenario = "Fishing plus continued warming", Year = proj_years,
-             idx    = idx0 * exp(r2    * (proj_years - 2025)),
-             idx_lo = idx0 * exp(r2_lo * (proj_years - 2025)),
-             idx_hi = idx0 * exp(r2_hi * (proj_years - 2025)))))
+all_years <- 1998:2060
+line_of <- function(r, r_lo, r_hi, nm) {
+  dt <- data.table(scenario = nm, Year = all_years,
+                   idx = idx98 * exp(r * (all_years - 1998)),
+                   idx_lo = idx98 * exp(r_lo * (all_years - 1998)),
+                   idx_hi = idx98 * exp(r_hi * (all_years - 1998)))
+  dt[Year <= 2025, `:=`(idx_lo = NA_real_, idx_hi = NA_real_)]   # ribbon on the projection only
+  dt
+}
+proj <- rbind(line_of(r_with, r_with_lo, r_with_hi, "Fishing plus warming, observed trend continued"),
+              line_of(r_without, r_without_lo, r_without_hi, "Fishing alone, thermal component removed"))
 fwrite(proj, file.path(OUT, "buffer_projection.csv"))
 
-cross_year <- function(r, level) 2025 + log(level / idx0) / r
+cross_year <- function(r, level) 1998 + log(level / idx98) / r
 crossings <- data.table(
-  quantity = c("proj_rate_statusquo_pct_decade", "proj_rate_climate_pct_decade",
+  quantity = c("proj_rate_with_warming_pct_decade", "proj_rate_fishing_alone_pct_decade",
+               "proj_thermal_component_pct_decade",
                "proj_sensitivity_pct_perC", "proj_warming_C_per_decade",
                "proj_anchor_idx_2025",
-               "half_baseline_year_statusquo", "half_baseline_year_climate",
-               "quarter_baseline_year_statusquo", "quarter_baseline_year_climate"),
-  value = c(round(100 * (exp(10 * r1) - 1), 1), round(100 * (exp(10 * r2) - 1), 1),
+               "half_baseline_year_with_warming", "half_baseline_year_fishing_alone",
+               "quarter_baseline_year_with_warming"),
+  value = c(round(100 * (exp(10 * r_with) - 1), 1), round(100 * (exp(10 * r_without) - 1), 1),
+            round(100 * (exp(10 * pen) - 1), 1),
             round(sens_pct_perC, 1), round(warm_dec, 2), round(idx0, 1),
-            round(cross_year(r1, 50)), round(cross_year(r2, 50)),
-            round(cross_year(r1, 25)), round(cross_year(r2, 25))))
+            round(cross_year(r_with, 50)), round(cross_year(r_without, 50)),
+            round(cross_year(r_with, 25))))
 fwrite(crossings, file.path(OUT, "buffer_projection_summary.csv"))
 print(crossings)
 

@@ -377,32 +377,39 @@ p3e <- ggplot(dc, aes(B, l_cpue)) +
 proj <- fread(file.path(DATA, "buffer_projection.csv"))
 pjs  <- fread(file.path(DATA, "buffer_projection_summary.csv"))
 gv <- function(q) pjs[quantity == q, value]
-sc_lv <- c("Observed trend, 1998 to 2025", "Status quo", "Fishing plus continued warming")
+sc_lv <- c("Fishing alone, thermal component removed",
+           "Fishing plus warming, observed trend continued")
 proj[, scenario := factor(scenario, levels = sc_lv)]
+wedge <- dcast(proj, Year ~ scenario, value.var = "idx")
+setnames(wedge, sc_lv, c("alone", "warm"))
 p3f <- ggplot() +
   geom_hline(yintercept = 100, linetype = 3, linewidth = 0.4, colour = "grey60") +
   geom_hline(yintercept = c(50, 25), linetype = 3, linewidth = 0.4, colour = "grey45") +
   geom_vline(xintercept = 2025, linetype = 2, linewidth = 0.4, colour = "grey60") +
+  geom_ribbon(data = wedge, aes(Year, ymin = warm, ymax = alone),
+              fill = "#f0c948", alpha = 0.35) +
   geom_ribbon(data = proj[!is.na(idx_lo)],
-              aes(Year, ymin = idx_lo, ymax = idx_hi, fill = scenario), alpha = 0.13) +
+              aes(Year, ymin = idx_lo, ymax = idx_hi, fill = scenario), alpha = 0.10) +
   geom_line(data = proj, aes(Year, idx, colour = scenario, linetype = scenario), linewidth = 0.95) +
-  scale_colour_manual(values = setNames(c("grey25", "#1f6f9c", RED), sc_lv), name = NULL) +
-  scale_fill_manual(values = setNames(c("grey25", "#1f6f9c", RED), sc_lv), name = NULL) +
-  scale_linetype_manual(values = setNames(c("solid", "solid", "longdash"), sc_lv), name = NULL) +
-  annotate("text", x = 1998.5, y = 103.5, label = "the 1998 to 2004 baseline", hjust = 0,
+  scale_colour_manual(values = setNames(c("#1f6f9c", RED), sc_lv), name = NULL) +
+  scale_fill_manual(values = setNames(c("#1f6f9c", RED), sc_lv), name = NULL) +
+  scale_linetype_manual(values = setNames(c("solid", "longdash"), sc_lv), name = NULL) +
+  annotate("text", x = 1998.5, y = 104, label = "the 1998 to 2004 baseline", hjust = 0,
            size = 2.4, colour = "grey45") +
-  annotate("text", x = 1998.5, y = 53.5, label = "half the baseline", hjust = 0,
+  annotate("text", x = 1998.5, y = 54, label = "half the baseline", hjust = 0,
            size = 2.4, colour = "grey30") +
-  annotate("text", x = 1998.5, y = 28.5, label = "a quarter", hjust = 0,
+  annotate("text", x = 1998.5, y = 29, label = "a quarter", hjust = 0,
            size = 2.4, colour = "grey30") +
   annotate("text", x = 2025.8, y = 8, label = "projection", hjust = 0,
            size = 2.3, colour = "grey50") +
-  annotate("label", x = gv("half_baseline_year_climate"), y = 50,
-           label = gv("half_baseline_year_climate"), size = 2.6, colour = RED,
+  annotate("text", x = 2043, y = 71, label = "the widening cost of warming",
+           size = 2.5, colour = "#8a6d1a", angle = -8) +
+  annotate("label", x = gv("half_baseline_year_with_warming"), y = 50,
+           label = gv("half_baseline_year_with_warming"), size = 2.6, colour = RED,
            fontface = "bold", label.padding = unit(0.12, "lines"), label.size = 0) +
-  annotate("label", x = gv("half_baseline_year_statusquo"), y = 50,
-           label = gv("half_baseline_year_statusquo"), size = 2.6, colour = "#1f6f9c",
-           fontface = "bold", label.padding = unit(0.12, "lines"), label.size = 0) +
+  annotate("text", x = 2059.8, y = wedge[Year == 2060, alone] + 5.5,
+           label = "halves only\nafter 2100", hjust = 1, size = 2.3,
+           colour = "#1f6f9c", lineheight = 0.95) +
   scale_x_continuous(breaks = seq(2000, 2060, 10), limits = c(1998, 2060.5),
                      expand = expansion(mult = c(0.01, 0.02))) +
   coord_cartesian(ylim = c(0, 112)) +
@@ -415,10 +422,10 @@ p3f <- ggplot() +
 save_fig((p3n_c | p3d) / (p3e | p3f), "Figure3_hyperstability", 8.6, 7.8)
 save_fig(p3c, "FigureS9_reef_value", 7, 4.6)
 
-for (q in c("proj_rate_statusquo_pct_decade", "proj_rate_climate_pct_decade",
-            "proj_sensitivity_pct_perC", "proj_warming_C_per_decade",
-            "half_baseline_year_statusquo", "half_baseline_year_climate",
-            "quarter_baseline_year_statusquo", "quarter_baseline_year_climate"))
+for (q in c("proj_rate_with_warming_pct_decade", "proj_rate_fishing_alone_pct_decade",
+            "proj_thermal_component_pct_decade", "proj_sensitivity_pct_perC",
+            "proj_warming_C_per_decade", "half_baseline_year_with_warming",
+            "half_baseline_year_fishing_alone", "quarter_baseline_year_with_warming"))
   addstat(q, gv(q))
 
 # the per-reef paired changes move to the Supplementary
