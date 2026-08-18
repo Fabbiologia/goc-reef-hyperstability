@@ -377,32 +377,37 @@ p3e <- ggplot(dc, aes(B, l_cpue)) +
 proj <- fread(file.path(DATA, "buffer_projection.csv"))
 pjs  <- fread(file.path(DATA, "buffer_projection_summary.csv"))
 gv <- function(q) pjs[quantity == q, value]
-sc_lv <- c("Status quo", "Fishing plus continued warming")
+sc_lv <- c("Observed trend, 1998 to 2025", "Status quo", "Fishing plus continued warming")
 proj[, scenario := factor(scenario, levels = sc_lv)]
 p3f <- ggplot() +
   geom_hline(yintercept = 100, linetype = 3, linewidth = 0.4, colour = "grey60") +
   geom_hline(yintercept = c(50, 25), linetype = 3, linewidth = 0.4, colour = "grey45") +
-  geom_ribbon(data = proj, aes(Year, ymin = idx_lo, ymax = idx_hi, fill = scenario), alpha = 0.13) +
+  geom_vline(xintercept = 2025, linetype = 2, linewidth = 0.4, colour = "grey60") +
+  geom_ribbon(data = proj[!is.na(idx_lo)],
+              aes(Year, ymin = idx_lo, ymax = idx_hi, fill = scenario), alpha = 0.13) +
   geom_line(data = proj, aes(Year, idx, colour = scenario, linetype = scenario), linewidth = 0.95) +
-  scale_colour_manual(values = setNames(c("#1f6f9c", RED), sc_lv), name = NULL) +
-  scale_fill_manual(values = setNames(c("#1f6f9c", RED), sc_lv), name = NULL) +
-  scale_linetype_manual(values = setNames(c("solid", "longdash"), sc_lv), name = NULL) +
-  annotate("text", x = 2025.6, y = 103.5, label = "the 1998 to 2004 baseline", hjust = 0,
+  scale_colour_manual(values = setNames(c("grey25", "#1f6f9c", RED), sc_lv), name = NULL) +
+  scale_fill_manual(values = setNames(c("grey25", "#1f6f9c", RED), sc_lv), name = NULL) +
+  scale_linetype_manual(values = setNames(c("solid", "solid", "longdash"), sc_lv), name = NULL) +
+  annotate("text", x = 1998.5, y = 103.5, label = "the 1998 to 2004 baseline", hjust = 0,
            size = 2.4, colour = "grey45") +
-  annotate("text", x = 2025.6, y = 53.5, label = "half the baseline", hjust = 0,
+  annotate("text", x = 1998.5, y = 53.5, label = "half the baseline", hjust = 0,
            size = 2.4, colour = "grey30") +
-  annotate("text", x = 2025.6, y = 28.5, label = "a quarter", hjust = 0,
+  annotate("text", x = 1998.5, y = 28.5, label = "a quarter", hjust = 0,
            size = 2.4, colour = "grey30") +
+  annotate("text", x = 2025.8, y = 8, label = "projection", hjust = 0,
+           size = 2.3, colour = "grey50") +
   annotate("label", x = gv("half_baseline_year_climate"), y = 50,
            label = gv("half_baseline_year_climate"), size = 2.6, colour = RED,
            fontface = "bold", label.padding = unit(0.12, "lines"), label.size = 0) +
   annotate("label", x = gv("half_baseline_year_statusquo"), y = 50,
            label = gv("half_baseline_year_statusquo"), size = 2.6, colour = "#1f6f9c",
            fontface = "bold", label.padding = unit(0.12, "lines"), label.size = 0) +
-  scale_x_continuous(breaks = seq(2025, 2060, 5), limits = c(2025, 2060.5),
-                     expand = expansion(mult = c(0, 0.02))) +
-  coord_cartesian(ylim = c(0, 108)) +
+  scale_x_continuous(breaks = seq(2000, 2060, 10), limits = c(1998, 2060.5),
+                     expand = expansion(mult = c(0.01, 0.02))) +
+  coord_cartesian(ylim = c(0, 112)) +
   labs(x = NULL, y = "Production (% of 1998 to 2004 baseline)", title = "d") +
+  guides(fill = "none") +
   theme(legend.position = c(0.97, 0.97), legend.justification = c(1, 1),
         legend.background = element_rect(fill = alpha("white", 0.7), colour = NA),
         legend.key.size = unit(0.8, "lines"), legend.text = element_text(size = 6.8))

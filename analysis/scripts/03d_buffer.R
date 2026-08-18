@@ -150,7 +150,13 @@ af  <- lm(log(idx) ~ Year, data = idx)
 idx0 <- exp(predict(af, data.frame(Year = 2025)))
 
 proj_years <- 2025:2060
+hist_years <- 1998:2025
 proj <- rbindlist(list(
+  # the record's own fitted trend, drawn back to 1998 so the projections
+  # visibly continue the observed decline rather than starting in mid-air
+  data.table(scenario = "Observed trend, 1998 to 2025", Year = hist_years,
+             idx    = idx0 * exp(r1 * (hist_years - 2025)),
+             idx_lo = NA_real_, idx_hi = NA_real_),
   data.table(scenario = "Status quo", Year = proj_years,
              idx    = idx0 * exp(r1    * (proj_years - 2025)),
              idx_lo = idx0 * exp(r1_lo * (proj_years - 2025)),
