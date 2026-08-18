@@ -149,7 +149,7 @@ idx <- res[group == "Biomass production", .(Year, idx)]
 af  <- lm(log(idx) ~ Year, data = idx)
 idx0 <- exp(predict(af, data.frame(Year = 2025)))
 
-proj_years <- 2025:2055
+proj_years <- 2025:2060
 proj <- rbindlist(list(
   data.table(scenario = "Status quo", Year = proj_years,
              idx    = idx0 * exp(r1    * (proj_years - 2025)),
