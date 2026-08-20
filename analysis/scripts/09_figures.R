@@ -377,56 +377,45 @@ p3e <- ggplot(dc, aes(B, l_cpue)) +
 proj <- fread(file.path(DATA, "buffer_projection.csv"))
 pjs  <- fread(file.path(DATA, "buffer_projection_summary.csv"))
 gv <- function(q) pjs[quantity == q, value]
-sc_lv <- c("Fishing alone, thermal component removed",
-           "Fishing plus warming, observed trend continued")
-proj[, scenario := factor(scenario, levels = sc_lv)]
-wedge <- dcast(proj, Year ~ scenario, value.var = "idx")
-setnames(wedge, sc_lv, c("alone", "warm"))
-p3f <- ggplot() +
-  geom_hline(yintercept = 100, linetype = 3, linewidth = 0.4, colour = "grey60") +
-  geom_hline(yintercept = c(50, 25), linetype = 3, linewidth = 0.4, colour = "grey45") +
-  geom_vline(xintercept = 2025, linetype = 2, linewidth = 0.4, colour = "grey60") +
-  geom_ribbon(data = wedge, aes(Year, ymin = warm, ymax = alone),
-              fill = "#f0c948", alpha = 0.35) +
-  geom_ribbon(data = proj[!is.na(idx_lo)],
-              aes(Year, ymin = idx_lo, ymax = idx_hi, fill = scenario), alpha = 0.10) +
-  geom_line(data = proj, aes(Year, idx, colour = scenario, linetype = scenario), linewidth = 0.95) +
-  scale_colour_manual(values = setNames(c("#1f6f9c", RED), sc_lv), name = NULL) +
-  scale_fill_manual(values = setNames(c("#1f6f9c", RED), sc_lv), name = NULL) +
-  scale_linetype_manual(values = setNames(c("solid", "longdash"), sc_lv), name = NULL) +
-  annotate("text", x = 1998.5, y = 104, label = "the 1998 to 2004 baseline", hjust = 0,
-           size = 2.4, colour = "grey45") +
-  annotate("text", x = 1998.5, y = 54, label = "half the baseline", hjust = 0,
-           size = 2.4, colour = "grey30") +
-  annotate("text", x = 1998.5, y = 29, label = "a quarter", hjust = 0,
-           size = 2.4, colour = "grey30") +
-  annotate("text", x = 2025.8, y = 8, label = "projection", hjust = 0,
-           size = 2.3, colour = "grey50") +
-  annotate("text", x = 2043, y = 71, label = "the widening cost of warming",
-           size = 2.5, colour = "#8a6d1a", angle = -8) +
-  annotate("label", x = gv("half_baseline_year_with_warming"), y = 50,
-           label = gv("half_baseline_year_with_warming"), size = 2.6, colour = RED,
-           fontface = "bold", label.padding = unit(0.12, "lines"), label.size = 0) +
-  annotate("text", x = 2059.8, y = wedge[Year == 2060, alone] + 5.5,
-           label = "halves only\nafter 2100", hjust = 1, size = 2.3,
-           colour = "#1f6f9c", lineheight = 0.95) +
-  scale_x_continuous(breaks = seq(2000, 2060, 10), limits = c(1998, 2060.5),
-                     expand = expansion(mult = c(0.01, 0.02))) +
-  coord_cartesian(ylim = c(0, 112)) +
-  labs(x = NULL, y = "Production (% of 1998 to 2004 baseline)", title = "d") +
-  guides(fill = "none") +
-  theme(legend.position = c(0.97, 0.97), legend.justification = c(1, 1),
-        legend.background = element_rect(fill = alpha("white", 0.7), colour = NA),
-        legend.key.size = unit(0.8, "lines"), legend.text = element_text(size = 6.8))
+
+# (d) The buffer itself: strength Phi across thermal exposure. This replaces
+# the earlier extrapolation, which failed out-of-sample validation. Phi is a
+# MEASURED quantity: Phi = 1 - dlog(P)/dlog(B), so Phi > 0 means production
+# falls proportionally less than biomass. It is flat across the observed
+# thermal range: warming does not measurably erode the compensation.
+st  <- fread(file.path(DATA, "buffer_phi_stratified.csv"))
+vd  <- fread(file.path(DATA, "buffer_nonlinear_verdict.csv"))
+pm  <- fread(file.path(DATA, "buffer_phi_models.csv"))
+phi_all <- pm[spec == "Whole community" & cluster == "twoway", phi_at_mean]
+st[, stratum := factor(stratum, levels = stratum)]
+p3f <- ggplot(st, aes(mean_anom, phi)) +
+  geom_hline(yintercept = 0, linewidth = 0.45, colour = "grey30") +
+  geom_hline(yintercept = phi_all, linetype = 3, linewidth = 0.4, colour = "#1f6f9c") +
+  geom_errorbar(aes(ymin = lo, ymax = hi), width = 0.055, linewidth = 0.5, colour = "#1f6f9c") +
+  geom_point(size = 2.6, colour = "#1f6f9c") +
+  annotate("text", x = max(st$mean_anom), y = phi_all - 0.035,
+           label = sprintf("overall buffer  \u03a6 = %.2f", phi_all),
+           hjust = 1, size = 2.5, colour = "#1f6f9c") +
+  annotate("text", x = min(st$mean_anom) - 0.03, y = -0.055, hjust = 0, size = 2.4,
+           colour = "grey35", label = "no buffer: production tracks biomass one for one") +
+  scale_x_continuous(breaks = round(st$mean_anom, 1)) +
+  coord_cartesian(ylim = c(-0.09, 0.46)) +
+  labs(x = "Warm season temperature anomaly of the reef year (\u00b0C)",
+       y = "Buffer strength  \u03a6 = 1 \u2212 dlog(P)/dlog(B)", title = "d")
 
 save_fig((p3n_c | p3d) / (p3e | p3f), "Figure3_hyperstability", 8.6, 7.8)
 save_fig(p3c, "FigureS9_reef_value", 7, 4.6)
 
-for (q in c("proj_rate_with_warming_pct_decade", "proj_rate_fishing_alone_pct_decade",
-            "proj_thermal_component_pct_decade", "proj_sensitivity_pct_perC",
-            "proj_warming_C_per_decade", "half_baseline_year_with_warming",
-            "half_baseline_year_fishing_alone", "quarter_baseline_year_with_warming"))
-  addstat(q, gv(q))
+addstat("buffer_phi_overall", round(phi_all, 3))
+addstat("buffer_phi_coolest_quartile", round(st[1, phi], 3))
+addstat("buffer_phi_warmest_quartile", round(st[.N, phi], 3))
+addstat("buffer_phi_stratified_range", vd[quantity == "phi_stratified_range", value])
+addstat("buffer_warmhalf_slope_shift", vd[quantity == "warmhalf_slope_shift", value])
+addstat("buffer_warmhalf_p", vd[quantity == "warmhalf_p", value])
+addstat("buffer_climate_erosion_supported", vd[quantity == "FINAL_climate_buffer_erosion_supported", value])
+for (q in c("dphi_dC", "dphi_dC_se", "dphi_dC_p_twoway", "dphi_dC_p_wildboot",
+            "buffer_panel_reefs", "buffer_panel_years", "buffer_panel_n"))
+  addstat(q, fread(file.path(DATA, "buffer_phi_summary.csv"))[quantity == q, value])
 
 # the per-reef paired changes move to the Supplementary
 save_fig(p3a, "FigureS2_reef_paired_change", 7, 6.5)

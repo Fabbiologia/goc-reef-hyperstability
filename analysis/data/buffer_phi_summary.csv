@@ -1,0 +1,13 @@
+quantity,value
+phi_at_mean_C,0.197
+dphi_dC,0.0011
+dphi_dC_se,0.0657
+dphi_dC_p_twoway,0.986
+dphi_dC_p_wildboot,0.987
+phi_cold,0.196
+phi_warm,0.198
+buffer_panel_reefs,75
+buffer_panel_years,27
+buffer_panel_n,1063
+within_year_C_sd,0.112
+climate_buffer_erosion_supported,0

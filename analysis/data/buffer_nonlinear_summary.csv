@@ -1,0 +1,14 @@
+quantity,value
+phi_cold_end,0.348
+phi_warm_end,-0.039
+phi_diff_warm_minus_cold,-0.387
+phi_diff_ci_lo,-1.233
+phi_diff_ci_hi,-0.093
+p_bootstrap_erosion,0.003
+phi_max,0.348
+C_at_phi_max,-0.66
+phi_min,-0.039
+C_at_phi_min,1.1
+gam_ti_edf,3.8
+n_reef_years,1063
+nboot_ok,300

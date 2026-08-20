@@ -62,7 +62,9 @@ which executes, each as an isolated process:
 | `03_ltem_analysis.R` | reef-fixed-effect biomass trends, Figure 2 trajectories |
 | `03b_productivity.R` | biomass production and turnover on the balanced 26-reef panel |
 | `03c_pathways.R` | energy pathways and the subsidy interaction |
-| `03d_buffer.R` | the buffer over time, its rate under fishing only, climate only and both, and the projection of how long it holds |
+| `03d_buffer.R` | the buffer over time and its rate under fishing only, climate only and both |
+| `03e_buffer_climate.R` | buffer strength Phi and the test of whether warming erodes it |
+| `03f_buffer_nonlinear.R` | smooth alternative plus the model-free stratified arbiter |
 | `04_fishery_analysis.R` | CPUE models and lag scans |
 | `05_variation_partitioning.R` | climate-versus-fishery variance partitioning |
 | `06_economic_value.R` | ex-vessel value, five states and La Paz/Loreto |
