@@ -1,127 +1,127 @@
 scenario,Year,idx,idx_lo,idx_hi
-"Fishing plus warming, observed trend continued",1998,105.24778647224,,
-"Fishing plus warming, observed trend continued",1999,103.940992634005,,
-"Fishing plus warming, observed trend continued",2000,102.650424411462,,
-"Fishing plus warming, observed trend continued",2001,101.375880341612,,
-"Fishing plus warming, observed trend continued",2002,100.117161462893,,
-"Fishing plus warming, observed trend continued",2003,98.8740712841197,,
-"Fishing plus warming, observed trend continued",2004,97.6464157538125,,
-"Fishing plus warming, observed trend continued",2005,96.4340032299023,,
-"Fishing plus warming, observed trend continued",2006,95.2366444498166,,
-"Fishing plus warming, observed trend continued",2007,94.054152500934,,
-"Fishing plus warming, observed trend continued",2008,92.8863427914062,,
-"Fishing plus warming, observed trend continued",2009,91.7330330213431,,
-"Fishing plus warming, observed trend continued",2010,90.5940431543547,,
-"Fishing plus warming, observed trend continued",2011,89.4691953894462,,
-"Fishing plus warming, observed trend continued",2012,88.3583141332636,,
-"Fishing plus warming, observed trend continued",2013,87.2612259726818,,
-"Fishing plus warming, observed trend continued",2014,86.1777596477348,,
-"Fishing plus warming, observed trend continued",2015,85.1077460248809,,
-"Fishing plus warming, observed trend continued",2016,84.0510180706006,,
-"Fishing plus warming, observed trend continued",2017,83.0074108253217,,
-"Fishing plus warming, observed trend continued",2018,81.9767613776686,,
-"Fishing plus warming, observed trend continued",2019,80.958908839031,,
-"Fishing plus warming, observed trend continued",2020,79.9536943184488,,
-"Fishing plus warming, observed trend continued",2021,78.9609608978083,,
-"Fishing plus warming, observed trend continued",2022,77.9805536073467,,
-"Fishing plus warming, observed trend continued",2023,77.0123194014608,,
-"Fishing plus warming, observed trend continued",2024,76.056107134816,,
-"Fishing plus warming, observed trend continued",2025,75.1117675387515,,
-"Fishing plus warming, observed trend continued",2026,74.1791531979793,60.5724997652087,90.8423259812335
-"Fishing plus warming, observed trend continued",2027,73.2581185275718,59.3890394930804,90.3660334635494
-"Fishing plus warming, observed trend continued",2028,72.3485197502357,58.2287015655993,89.892238180056
-"Fishing plus warming, observed trend continued",2029,71.4502148738673,57.0910342203912,89.4209270375839
-"Fishing plus warming, observed trend continued",2030,70.5630636693874,55.9755945215767,88.9520870116122
-"Fishing plus warming, observed trend continued",2031,69.6869276488505,54.881948187319,88.4857051459082
-"Fishing plus warming, observed trend continued",2032,68.8216700438269,53.8096694207425,88.02176855217
-"Fishing plus warming, observed trend continued",2033,67.9671557840519,52.7583407441542,87.5602644096695
-"Fishing plus warming, observed trend continued",2034,67.1232514763414,51.7275528365042,87.1011799648989
-"Fishing plus warming, observed trend continued",2035,66.2898253837681,50.7169043740219,86.6445025312177
-"Fishing plus warming, observed trend continued",2036,65.4667474050973,49.7260018739659,86.1902194885025
-"Fishing plus warming, observed trend continued",2037,64.6538890544773,48.7544595414269,85.738318282798
-"Fishing plus warming, observed trend continued",2038,63.8511234413822,47.8018991191228,85.2887864259701
-"Fishing plus warming, observed trend continued",2039,63.0583252508041,46.8679497401299,84.8416114953608
-"Fishing plus warming, observed trend continued",2040,62.2753707236904,45.9522477834904,84.396781133445
-"Fishing plus warming, observed trend continued",2041,61.5021376376249,45.0544367326413,83.9542830474891
-"Fishing plus warming, observed trend continued",2042,60.7385052877484,44.1741670366097,83.5141050092108
-"Fishing plus warming, observed trend continued",2043,59.9843544679159,43.3110959739191,83.0762348544419
-"Fishing plus warming, observed trend continued",2044,59.239567452088,42.4648875191558,82.6406604827915
-"Fishing plus warming, observed trend continued",2045,58.5040279759539,41.6352122121416,82.207369857312
-"Fishing plus warming, observed trend continued",2046,57.7776212187815,40.8217470296629,81.7763510041662
-"Fishing plus warming, observed trend continued",2047,57.0602337854937,40.0241752597056,81.3475920122967
-"Fishing plus warming, observed trend continued",2048,56.3517536889667,39.2421863781477,80.9210810330966
-"Fishing plus warming, observed trend continued",2049,55.6520703325488,38.4754759278608,80.4968062800819
-"Fishing plus warming, observed trend continued",2050,54.9610744927955,37.7237454001733,80.074756028566
-"Fishing plus warming, observed trend continued",2051,54.2786583024191,36.9867021186505,79.6549186153357
-"Fishing plus warming, observed trend continued",2052,53.6047152334507,36.2640591251447,79.2372824383287
-"Fishing plus warming, observed trend continued",2053,52.9391400806102,35.5555350680713,78.8218359563134
-"Fishing plus warming, observed trend continued",2054,52.2818289448836,34.8608540928692,78.4085676885692
-"Fishing plus warming, observed trend continued",2055,51.6326792173041,34.1797457345996,77.9974662145701
-"Fishing plus warming, observed trend continued",2056,50.991589562934,33.5119448126443,77.5885201736685
-"Fishing plus warming, observed trend continued",2057,50.3584599050461,32.8571913274612,77.1817182647816
-"Fishing plus warming, observed trend continued",2058,49.7331914095016,32.215230359357,76.7770492460786
-"Fishing plus warming, observed trend continued",2059,49.115686469321,31.585811969237,76.3745019346709
-"Fishing plus warming, observed trend continued",2060,48.5058486894482,30.9686911012953,75.9740652063022
-"Fishing alone, thermal component removed",1998,105.24778647224,,
-"Fishing alone, thermal component removed",1999,104.501795046028,,
-"Fishing alone, thermal component removed",2000,103.761091172425,,
-"Fishing alone, thermal component removed",2001,103.025637373504,,
-"Fishing alone, thermal component removed",2002,102.295396436979,,
-"Fishing alone, thermal component removed",2003,101.570331414323,,
-"Fishing alone, thermal component removed",2004,100.850405618899,,
-"Fishing alone, thermal component removed",2005,100.135582624103,,
-"Fishing alone, thermal component removed",2006,99.4258262615215,,
-"Fishing alone, thermal component removed",2007,98.7211006190994,,
-"Fishing alone, thermal component removed",2008,98.0213700393261,,
-"Fishing alone, thermal component removed",2009,97.3265991174294,,
-"Fishing alone, thermal component removed",2010,96.6367526995844,,
-"Fishing alone, thermal component removed",2011,95.951795881135,,
-"Fishing alone, thermal component removed",2012,95.2716940048274,,
-"Fishing alone, thermal component removed",2013,94.5964126590573,,
-"Fishing alone, thermal component removed",2014,93.9259176761277,,
-"Fishing alone, thermal component removed",2015,93.260175130521,,
-"Fishing alone, thermal component removed",2016,92.599151337182,,
-"Fishing alone, thermal component removed",2017,91.9428128498136,,
-"Fishing alone, thermal component removed",2018,91.2911264591846,,
-"Fishing alone, thermal component removed",2019,90.6440591914491,,
-"Fishing alone, thermal component removed",2020,90.0015783064784,,
-"Fishing alone, thermal component removed",2021,89.3636512962044,,
-"Fishing alone, thermal component removed",2022,88.7302458829745,,
-"Fishing alone, thermal component removed",2023,88.1013300179188,,
-"Fishing alone, thermal component removed",2024,87.476871879328,,
-"Fishing alone, thermal component removed",2025,86.8568398710439,,
-"Fishing alone, thermal component removed",2026,86.2412026208603,70.4220121192443,105.613923909167
-"Fishing alone, thermal component removed",2027,85.6299289789357,69.4186437781048,105.627023777297
-"Fishing alone, thermal component removed",2028,85.0229880162174,68.4295713651517,105.640125270275
-"Fishing alone, thermal component removed",2029,84.420349022876,67.4545911929112,105.653228388302
-"Fishing alone, thermal component removed",2030,83.8219815067524,66.4935024760357,105.66633313158
-"Fishing alone, thermal component removed",2031,83.2278551918143,65.5461072899543,105.679439500311
-"Fishing alone, thermal component removed",2032,82.6379400166244,64.6122105301129,105.692547494695
-"Fishing alone, thermal component removed",2033,82.0522061328197,63.6916198717946,105.705657114935
-"Fishing alone, thermal component removed",2034,81.4706239036008,62.7841457305127,105.718768361233
-"Fishing alone, thermal component removed",2035,80.8931639022328,61.8896012229684,105.73188123379
-"Fishing alone, thermal component removed",2036,80.3197969105559,61.0078021285642,105.744995732807
-"Fishing alone, thermal component removed",2037,79.7504939175074,60.1385668514656,105.758111858487
-"Fishing alone, thermal component removed",2038,79.1852261176536,59.2817163832045,105.771229611031
-"Fishing alone, thermal component removed",2039,78.6239649097324,58.4370742658137,105.784348990641
-"Fishing alone, thermal component removed",2040,78.0666818952062,57.604466555488,105.797469997519
-"Fishing alone, thermal component removed",2041,77.5133488768247,56.7837217867623,105.810592631866
-"Fishing alone, thermal component removed",2042,76.9639378571986,55.9746709372007,105.823716893886
-"Fishing alone, thermal component removed",2043,76.4184210373827,55.1771473925881,105.836842783778
-"Fishing alone, thermal component removed",2044,75.8767708154696,54.3909869126182,105.849970301746
-"Fishing alone, thermal component removed",2045,75.3389597851927,53.61602759707,105.863099447991
-"Fishing alone, thermal component removed",2046,74.8049607345397,52.8521098524666,105.876230222716
-"Fishing alone, thermal component removed",2047,74.2747466443762,52.0990763592089,105.889362626122
-"Fishing alone, thermal component removed",2048,73.7482906870778,51.3567720391772,105.902496658411
-"Fishing alone, thermal component removed",2049,73.2255662251731,50.625044023795,105.915632319785
-"Fishing alone, thermal component removed",2050,72.706546809996,49.9037416225478,105.928769610447
-"Fishing alone, thermal component removed",2051,72.1912061803472,49.1927162919497,105.941908530598
-"Fishing alone, thermal component removed",2052,71.6795182611655,48.4918216049529,105.955049080441
-"Fishing alone, thermal component removed",2053,71.1714571622088,47.800913220793,105.968191260177
-"Fishing alone, thermal component removed",2054,70.6669971767436,47.1198488552636,105.98133507001
-"Fishing alone, thermal component removed",2055,70.1661127802446,46.4484882514144,105.99448051014
-"Fishing alone, thermal component removed",2056,69.6687786291031,45.7866931506674,106.007627580771
-"Fishing alone, thermal component removed",2057,69.1749695593447,45.134327264344,106.020776282104
-"Fishing alone, thermal component removed",2058,68.6846605853563,44.4912562455979,106.033926614342
-"Fishing alone, thermal component removed",2059,68.1978268986214,43.8573476617481,106.047078577687
-"Fishing alone, thermal component removed",2060,67.7144438664653,43.2324709670062,106.060232172341
+"Fishing plus warming, observed trend continued",1998,106.17996617567,,
+"Fishing plus warming, observed trend continued",1999,104.870641030251,,
+"Fishing plus warming, observed trend continued",2000,103.577461419608,,
+"Fishing plus warming, observed trend continued",2001,102.300228250114,,
+"Fishing plus warming, observed trend continued",2002,101.038744883202,,
+"Fishing plus warming, observed trend continued",2003,99.7928171050909,,
+"Fishing plus warming, observed trend continued",2004,98.5622530968891,,
+"Fishing plus warming, observed trend continued",2005,97.346863405058,,
+"Fishing plus warming, observed trend continued",2006,96.1464609122468,,
+"Fishing plus warming, observed trend continued",2007,94.9608608084838,,
+"Fishing plus warming, observed trend continued",2008,93.789880562724,,
+"Fishing plus warming, observed trend continued",2009,92.6333398947469,,
+"Fishing plus warming, observed trend continued",2010,91.4910607474015,,
+"Fishing plus warming, observed trend continued",2011,90.3628672591929,,
+"Fishing plus warming, observed trend continued",2012,89.2485857372074,,
+"Fishing plus warming, observed trend continued",2013,88.1480446303713,,
+"Fishing plus warming, observed trend continued",2014,87.0610745030397,,
+"Fishing plus warming, observed trend continued",2015,85.9875080089102,,
+"Fishing plus warming, observed trend continued",2016,84.9271798652593,,
+"Fishing plus warming, observed trend continued",2017,83.879926827496,,
+"Fishing plus warming, observed trend continued",2018,82.8455876640287,,
+"Fishing plus warming, observed trend continued",2019,81.8240031314433,,
+"Fishing plus warming, observed trend continued",2020,80.815015949986,,
+"Fishing plus warming, observed trend continued",2021,79.8184707793494,,
+"Fishing plus warming, observed trend continued",2022,78.8342141947563,,
+"Fishing plus warming, observed trend continued",2023,77.8620946633397,,
+"Fishing plus warming, observed trend continued",2024,76.9019625208128,,
+"Fishing plus warming, observed trend continued",2025,75.9536699484272,,
+"Fishing plus warming, observed trend continued",2026,75.0170709502152,61.2283193640075,91.911079585466
+"Fishing plus warming, observed trend continued",2027,74.0920213305132,60.0362284499352,91.4385824455824
+"Fishing plus warming, observed trend continued",2028,73.1783786717611,58.8673470696567,90.9685143223984
+"Fishing plus warming, observed trend continued",2029,72.2760023125769,57.7212233428225,90.5008627288075
+"Fishing plus warming, observed trend continued",2030,71.3847533261002,56.5974141870127,90.0356152418971
+"Fishing plus warming, observed trend continued",2031,70.504494498604,55.4954851464456,89.5727595026181
+"Fishing plus warming, observed trend continued",2032,69.6350903083698,54.4150102240194,89.1122832154571
+"Fishing plus warming, observed trend continued",2033,68.7764069048226,53.3555717166262,88.6541741481096
+"Fishing plus warming, observed trend continued",2034,67.9283120879242,52.3167600536702,88.1984201311547
+"Fishing plus warming, observed trend continued",2035,67.0906752878199,51.298173638732,87.7450090577327
+"Fishing plus warming, observed trend continued",2036,66.2633675447365,50.2994186943136,87.2939288832224
+"Fishing plus warming, observed trend continued",2037,65.446261489128,49.3201091096077,86.8451676249219
+"Fishing plus warming, observed trend continued",2038,64.6392313220662,48.3598662912301,86.3987133617301
+"Fishing plus warming, observed trend continued",2039,63.8421527958733,47.4183190168587,85.9545542338299
+"Fishing plus warming, observed trend continued",2040,63.0549031949928,46.4951032917215,85.5126784423733
+"Fishing plus warming, observed trend continued",2041,62.2773613170969,45.5898622078792,85.0730742491679
+"Fishing plus warming, observed trend continued",2042,61.5094074544267,44.7022458062478,84.6357299763649
+"Fishing plus warming, observed trend continued",2043,60.7509233753619,43.8319109413066,84.2006340061493
+"Fishing plus warming, observed trend continued",2044,60.0017923062187,42.9785211484411,83.767774780431
+"Fishing plus warming, observed trend continued",2045,59.2618989132716,42.1417465138684,83.3371408005378
+"Fishing plus warming, observed trend continued",2046,58.5311292849969,41.3212635470951,82.9087206269099
+"Fishing plus warming, observed trend continued",2047,57.8093709145355,40.5167550558588,82.4825028787961
+"Fishing plus warming, observed trend continued",2048,57.0965126823714,39.7279100235032,82.0584762339514
+"Fishing plus warming, observed trend continued",2049,56.3924448392242,38.9544234887423,81.6366294283364
+"Fishing plus warming, observed trend continued",2050,55.6970589891526,38.1959964277645,81.216951255818
+"Fishing plus warming, observed trend continued",2051,55.0102480728663,37.4523356386324,80.7994305678713
+"Fishing plus warming, observed trend continued",2052,54.3319063512428,36.7231536279329,80.3840562732842
+"Fishing plus warming, observed trend continued",2053,53.661929389049,36.008168499635,79.9708173378624
+"Fishing plus warming, observed trend continued",2054,53.0002140388621,35.3071038461108,79.5597027841359
+"Fishing plus warming, observed trend continued",2055,52.3466584251897,34.6196886412784,79.1507016910681
+"Fishing plus warming, observed trend continued",2056,51.7011619287852,33.9456571358254,78.7438031937652
+"Fishing plus warming, observed trend continued",2057,51.0636251711568,33.2847487544724,78.3389964831877
+"Fishing plus warming, observed trend continued",2058,50.4339499992678,32.6367079952366,77.9362708058635
+"Fishing plus warming, observed trend continued",2059,49.8120394704249,32.0012843306566,77.5356154636016
+"Fishing plus warming, observed trend continued",2060,49.1977978373535,31.3782321109407,77.1370198132089
+"Fishing alone, thermal component removed",1998,106.17996617567,,
+"Fishing alone, thermal component removed",1999,105.406086631431,,
+"Fishing alone, thermal component removed",2000,104.637847412487,,
+"Fishing alone, thermal component removed",2001,103.875207410024,,
+"Fishing alone, thermal component removed",2002,103.118125814847,,
+"Fishing alone, thermal component removed",2003,102.366562115191,,
+"Fishing alone, thermal component removed",2004,101.620476094557,,
+"Fishing alone, thermal component removed",2005,100.879827829561,,
+"Fishing alone, thermal component removed",2006,100.144577687793,,
+"Fishing alone, thermal component removed",2007,99.414686325699,,
+"Fishing alone, thermal component removed",2008,98.6901146864778,,
+"Fishing alone, thermal component removed",2009,97.9708239979869,,
+"Fishing alone, thermal component removed",2010,97.2567757706705,,
+"Fishing alone, thermal component removed",2011,96.5479317954991,,
+"Fishing alone, thermal component removed",2012,95.8442541419248,,
+"Fishing alone, thermal component removed",2013,95.1457051558521,,
+"Fishing alone, thermal component removed",2014,94.4522474576225,,
+"Fishing alone, thermal component removed",2015,93.7638439400145,,
+"Fishing alone, thermal component removed",2016,93.0804577662582,,
+"Fishing alone, thermal component removed",2017,92.4020523680637,,
+"Fishing alone, thermal component removed",2018,91.7285914436648,,
+"Fishing alone, thermal component removed",2019,91.0600389558759,,
+"Fishing alone, thermal component removed",2020,90.3963591301643,,
+"Fishing alone, thermal component removed",2021,89.7375164527354,,
+"Fishing alone, thermal component removed",2022,89.0834756686325,,
+"Fishing alone, thermal component removed",2023,88.4342017798503,,
+"Fishing alone, thermal component removed",2024,87.7896600434622,,
+"Fishing alone, thermal component removed",2025,87.1498159697609,,
+"Fishing alone, thermal component removed",2026,86.5146353204133,70.6125373059998,105.997920626882
+"Fishing alone, thermal component removed",2027,85.8840841066281,69.5912515416222,105.991424775897
+"Fishing alone, thermal component removed",2028,85.2581285873371,68.5847368738842,105.984929322996
+"Fishing alone, thermal component removed",2029,84.6367352673896,67.5927796649349,105.978434268155
+"Fishing alone, thermal component removed",2030,84.0198708957603,66.6151693668179,105.971939611349
+"Fishing alone, thermal component removed",2031,83.4075024637697,65.6516984767816,105.965445352554
+"Fishing alone, thermal component removed",2032,82.7995972033183,64.7021624932353,105.958951491745
+"Fishing alone, thermal component removed",2033,82.1961225851324,63.7663598723432,105.952458028899
+"Fishing alone, thermal component removed",2034,81.5970463170242,62.8440919852456,105.94596496399
+"Fishing alone, thermal component removed",2035,81.0023363421636,61.9351630758985,105.939472296995
+"Fishing alone, thermal component removed",2036,80.4119608373623,61.0393802195239,105.932980027888
+"Fishing alone, thermal component removed",2037,79.8258882113718,60.1565532816603,105.926488156646
+"Fishing alone, thermal component removed",2038,79.2440871031923,59.2864948778056,105.919996683244
+"Fishing alone, thermal component removed",2039,78.6665263803949,58.4290203336441,105.913505607658
+"Fishing alone, thermal component removed",2040,78.0931751374553,57.583947645848,105.907014929863
+"Fishing alone, thermal component removed",2041,77.5240026941006,56.7510974434467,105.900524649835
+"Fishing alone, thermal component removed",2042,76.958978593667,55.9302929497541,105.89403476755
+"Fishing alone, thermal component removed",2043,76.3980726014707,55.1213599448469,105.887545282983
+"Fishing alone, thermal component removed",2044,75.8412547031891,54.324126728586,105.88105619611
+"Fishing alone, thermal component removed",2045,75.2884951032559,53.5384240841713,105.874567506906
+"Fishing alone, thermal component removed",2046,74.7397642232655,52.7640852422256,105.868079215348
+"Fishing alone, thermal component removed",2047,74.1950327003912,52.0009458453962,105.86159132141
+"Fishing alone, thermal component removed",2048,73.6542713858137,51.2488439134696,105.855103825069
+"Fishing alone, thermal component removed",2049,73.117451343161,50.5076198089905,105.8486167263
+"Fishing alone, thermal component removed",2050,72.5845438469604,49.7771162033774,105.842130025079
+"Fishing alone, thermal component removed",2051,72.0555203811012,49.0571780435294,105.83564372138
+"Fishing alone, thermal component removed",2052,71.530352637309,48.3476525189149,105.829157815181
+"Fishing alone, thermal component removed",2053,71.0090125136306,47.6483890291373,105.822672306457
+"Fishing alone, thermal component removed",2054,70.4914721129304,46.9592391519688,105.816187195182
+"Fishing alone, thermal component removed",2055,69.9777037413978,46.2800566118473,105.809702481334
+"Fishing alone, thermal component removed",2056,69.4676799070648,45.6106972488287,105.803218164887
+"Fishing alone, thermal component removed",2057,68.9613733183355,44.951018987988,105.796734245817
+"Fishing alone, thermal component removed",2058,68.4587568825252,44.3008818092635,105.7902507241
+"Fishing alone, thermal component removed",2059,67.9598037044111,43.6601477177365,105.783767599711
+"Fishing alone, thermal component removed",2060,67.4644870847928,43.0286807143413,105.777284872627

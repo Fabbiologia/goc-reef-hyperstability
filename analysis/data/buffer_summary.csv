@@ -1,10 +1,10 @@
 quantity,value
 fishingonly_biomass_pct_decade,-39.2
-fishingonly_production_pct_decade,-28.8
+fishingonly_production_pct_decade,-28.7
 climateonly_biomass_pct_decade,69.7
-climateonly_production_pct_decade,81.6
+climateonly_production_pct_decade,91.4
 both_biomass_pct_decade,-2.2
-both_production_pct_decade,16.2
-both_production_p,0.25
-fishingonly_production_p,6.6e-06
+both_production_pct_decade,15.8
+both_production_p,0.24
+fishingonly_production_p,1.1e-05
 climateonly_production_p,0.14

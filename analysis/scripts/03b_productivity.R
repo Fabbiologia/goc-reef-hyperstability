@@ -105,14 +105,26 @@ message(sprintf("Size records capped at published maximum: %.2f%% of individuals
 # -----------------------------------------------------------
 # Long-term mean SST per one-degree latitude band
 # -----------------------------------------------------------
-sstd <- fread(file.path("../data/env", "sst_gulf_by_lat_degree_daily.csv"))
-sst_lt <- sstd[, .(sst_mean_lt = mean(sst_mean, na.rm = TRUE)), by = lat_degree]
-fish[, Degree := as.integer(Degree)]
-fish[is.na(Degree), Degree := as.integer(floor(Latitude))]
-fish <- merge(fish, sst_lt, by.x = "Degree", by.y = "lat_degree", all.x = TRUE)
+# Per-reef long-term mean from OISST v2.1 at quarter degree resolution
+# (00b). Each reef takes its own nearest ocean cell rather than a one-degree
+# band average, so reefs that sit in the midriff cold pool or on the warmer
+# mainland side get the temperature they actually experience.
+reef_lt <- fread(file.path("../data/env", "sst_reef_longterm.csv"))
+fish <- merge(fish, reef_lt[, .(Reef, sst_mean_lt)], by = "Reef", all.x = TRUE)
+# Any reef without a matched cell falls back to its latitude band.
+if (anyNA(fish$sst_mean_lt)) {
+  sstd <- fread(file.path("../data/env", "sst_gulf_by_lat_degree_daily.csv"))
+  bl <- sstd[, .(band_lt = mean(sst_mean, na.rm = TRUE)), by = lat_degree]
+  fish[, Degree := as.integer(Degree)]
+  fish[is.na(Degree), Degree := as.integer(floor(Latitude))]
+  fish <- merge(fish, bl, by.x = "Degree", by.y = "lat_degree", all.x = TRUE)
+  n_fb <- fish[is.na(sst_mean_lt), uniqueN(Reef)]
+  fish[is.na(sst_mean_lt), sst_mean_lt := band_lt]
+  if (n_fb) message("  ", n_fb, " reefs fell back to their latitude band")
+}
 stopifnot(!any(is.na(fish$sst_mean_lt)))
-message("Long-term band SST range on the panel: ",
-        paste(round(range(fish$sst_mean_lt), 2), collapse = " to "), " C")
+message(sprintf("Per-reef long-term SST on the panel: %.2f to %.2f C across %d reefs",
+                min(fish$sst_mean_lt), max(fish$sst_mean_lt), uniqueN(fish$Reef)))
 
 # -----------------------------------------------------------
 # Kmax per unique species x temperature combination

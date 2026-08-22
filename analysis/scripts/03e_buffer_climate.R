@@ -27,12 +27,13 @@
 # A Gulf-wide annual anomaly is collinear with year fixed effects and is
 # therefore not identified (this is the attribution limit stated in the
 # Methods). Here C varies BETWEEN reefs WITHIN a year, because thermal
-# exposure is resolved to one-degree latitude bands. The interaction is
-# identified from reefs that ran hotter than their contemporaries in the
-# same year, not from the passage of time. That variation is real but
-# modest: the panel spans a handful of latitude bands, so the test is
-# reported with its power limits, and with the full inference battery the
-# strategy note requires.
+# exposure is resolved to the quarter degree OISST cell nearest each reef
+# (00b). The interaction is identified from reefs that ran hotter than their
+# contemporaries in the same year, not from the passage of time. The
+# within-year between-reef contrast is 0.26 C, against 0.11 C when exposure
+# was averaged into one-degree bands, so the test carries roughly twice the
+# identifying variation; it is still reported with the full inference
+# battery the strategy note requires.
 #
 # Inference: two-way cluster-robust (reef and year) standard errors,
 # a wild cluster bootstrap on year (27 clusters), leave-one-year-out and
@@ -91,16 +92,15 @@ fish[is.na(MaxSizeTL), c("MaxSizeTL","Diet","Position","Method") :=
 fish <- fish[!is.na(MaxSizeTL)]
 fish[, Size := pmin(Size, MaxSizeTL)]
 
-# long-term band temperature drives Kmax, NOT the temperature of the survey
-# year, so production cannot track warming by construction (strategy note 9)
-sstd <- fread(file.path("../data/env", "sst_gulf_by_lat_degree_daily.csv"))
-sstd[, date := as.Date(date)]
-sstd[, `:=`(yr = as.integer(format(date, "%Y")), mo = as.integer(format(date, "%m")))]
-sst_lt <- sstd[, .(sst_mean_lt = mean(sst_mean, na.rm = TRUE)), by = lat_degree]
-fish[, Degree := as.integer(Degree)]
-fish[is.na(Degree), Degree := as.integer(floor(Latitude))]
-fish <- merge(fish, sst_lt, by.x = "Degree", by.y = "lat_degree", all.x = TRUE)
+# Per-reef long-term mean from OISST v2.1 at quarter degree resolution
+# (00b): each reef takes its own nearest ocean cell rather than a one-degree
+# band average. Long-term, not the survey year, so production still cannot
+# track warming by construction.
+reef_lt <- fread(file.path("../data/env", "sst_reef_longterm.csv"))
+fish <- merge(fish, reef_lt[, .(Reef, sst_mean_lt)], by = "Reef", all.x = TRUE)
 fish <- fish[!is.na(sst_mean_lt)]
+message(sprintf("Per-reef long-term SST: %.2f to %.2f C across %d reefs",
+                min(fish$sst_mean_lt), max(fish$sst_mean_lt), uniqueN(fish$Reef)))
 
 grid <- unique(fish[, .(species_std, MaxSizeTL, Diet, Position, Method,
                         sstmean = round(sst_mean_lt, 2))])
@@ -146,27 +146,24 @@ ry_comm <- to_reef_year(tr_comm)
 # Anomalies are computed within each latitude band against that band's own
 # 1991-2020 monthly climatology, so C carries between-band variation within
 # every year. MHW days use the band's 90th percentile over 1982-2011.
-clim <- sstd[yr %between% c(1991, 2020),
-             .(clim = mean(sst_mean, na.rm = TRUE)), by = .(lat_degree, mo)]
-sstd <- merge(sstd, clim, by = c("lat_degree", "mo"))
-sstd[, anom := sst_mean - clim]
-thr <- sstd[yr %between% c(1982, 2011),
-            .(p90 = quantile(sst_mean, 0.90, na.rm = TRUE)), by = .(lat_degree, mo)]
-sstd <- merge(sstd, thr, by = c("lat_degree", "mo"))
-env <- sstd[, .(C_ann  = mean(anom, na.rm = TRUE),
-                C_warm = mean(anom[mo %in% 5:10], na.rm = TRUE),
-                mhw_days = sum(sst_mean > p90, na.rm = TRUE)),
-            by = .(Degree = lat_degree, Year = yr)]
-message("Thermal exposure: ", uniqueN(env$Degree), " latitude bands x ",
-        uniqueN(env$Year), " years")
+# Per-reef thermal exposure from OISST v2.1 (00b): anomalies against each
+# reef cell's own 1991-2020 climatology and heatwave days detected on that
+# cell, so exposure varies BETWEEN reefs within a year rather than only
+# between latitude bands.
+reef_year <- fread(file.path("../data/env", "sst_reef_year.csv"))
+env <- reef_year[, .(Reef, Year = year, C_ann = anom_annual,
+                     C_warm = anom_warm, mhw_days, mhw_cum)]
+message(sprintf("Thermal exposure: %d reefs x %d years, per-reef cells",
+                uniqueN(env$Reef), uniqueN(env$Year)))
 
 attach_env <- function(ry) {
-  d <- merge(ry, env, by = c("Degree", "Year"))
+  d <- merge(ry, env, by = c("Reef", "Year"))
   d[, `:=`(lB = log(B), lP = log(P))]
   d[, `:=`(lB_c = lB - mean(lB), C = C_warm - mean(C_warm))]   # centred
   d[, Reef := factor(Reef)][, YearF := factor(Year)]
   d[]
 }
+
 d_all  <- attach_env(ry_all)
 d_comm <- attach_env(ry_comm)
 fwrite(d_all, file.path(OUT, "buffer_reef_year.csv"))

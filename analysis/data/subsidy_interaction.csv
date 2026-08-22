@@ -1,8 +1,8 @@
 quantity,value
-interaction_beta_yearFE,-0.0171546143454632
-interaction_p_yearFE_reefclust,4.31522270758766e-05
-descriptive_resp_pct_per_C_p10share,-8.05682766545479
-descriptive_resp_pct_per_C_p90share,-31.945462767669
-reef_share_median,10.2992194041302
-reef_share_p10,5.67142915994512
-reef_share_p90,22.6298300095772
+interaction_beta_yearFE,-0.0119002096257949
+interaction_p_yearFE_reefclust,0.000238552282206175
+descriptive_resp_pct_per_C_p10share,-10.9078119602456
+descriptive_resp_pct_per_C_p90share,-31.0169404018104
+reef_share_median,10.4776117525949
+reef_share_p10,6.49455894470689
+reef_share_p90,27.1386742195094

@@ -81,11 +81,15 @@ fish[is.na(MaxSizeTL), c("MaxSizeTL","Diet","Position","Method") :=
 fish <- fish[!is.na(MaxSizeTL)]
 fish[, Size := pmin(Size, MaxSizeTL)]
 
-sstd <- fread(file.path("../data/env", "sst_gulf_by_lat_degree_daily.csv"))
-sst_lt <- sstd[, .(sst_mean_lt = mean(sst_mean, na.rm = TRUE)), by = lat_degree]
-fish[, Degree := as.integer(Degree)]
-fish[is.na(Degree), Degree := as.integer(floor(Latitude))]
-fish <- merge(fish, sst_lt, by.x = "Degree", by.y = "lat_degree", all.x = TRUE)
+# Per-reef long-term mean from OISST v2.1 at quarter degree resolution
+# (00b): each reef takes its own nearest ocean cell rather than a one-degree
+# band average. Long-term, not the survey year, so production still cannot
+# track warming by construction.
+reef_lt <- fread(file.path("../data/env", "sst_reef_longterm.csv"))
+fish <- merge(fish, reef_lt[, .(Reef, sst_mean_lt)], by = "Reef", all.x = TRUE)
+fish <- fish[!is.na(sst_mean_lt)]
+message(sprintf("Per-reef long-term SST: %.2f to %.2f C across %d reefs",
+                min(fish$sst_mean_lt), max(fish$sst_mean_lt), uniqueN(fish$Reef)))
 
 grid <- unique(fish[, .(species_std, MaxSizeTL, Diet, Position, Method,
                         sstmean = round(sst_mean_lt, 2))])

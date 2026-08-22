@@ -18,6 +18,22 @@ fa <- grep("^--file=", args, value = TRUE)
 script_dir <- if (length(fa)) dirname(normalizePath(sub("^--file=", "", fa[1]))) else getwd()
 setwd(script_dir)
 
+# Step 00a/00b build the sea surface temperature inputs from NOAA OISST
+# v2.1 at the product's native quarter degree resolution. The download is
+# ~200 MB over ~30 min and is cached under ../data/env/oisst_daily, so both
+# steps are skipped once that cache and its derived products exist.
+sst_reef <- "../data/env/sst_reef_longterm.csv"
+if (!file.exists(sst_reef)) {
+  message("\n========== 00a_download_oisst.py ==========")
+  if (system2("python3", c("00a_download_oisst.py")) != 0)
+    stop("OISST download FAILED")
+  message("\n========== 00b_build_reef_sst.R ==========")
+  code <- system2("Rscript", c("-e", shQuote(sprintf("setwd('%s'); source('00b_build_reef_sst.R')", script_dir))))
+  if (code != 0) stop("OISST processing FAILED")
+} else {
+  message("OISST products already built at ", sst_reef)
+}
+
 # Step 01a ingests the raw CONAPESCA government files (~5 GB of xlsx and
 # csv, ~20 min). Its output is cached, so it is skipped unless missing.
 gz <- "../../data/conapesca_avisos_pacifico_2000_2026.csv.gz"
