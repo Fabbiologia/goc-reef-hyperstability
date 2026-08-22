@@ -86,6 +86,10 @@ summaries can be re-run and inspected without any raw data.
   in `data/CONAPESCA Raw/` and `01a` rebuilds the tidy extract.
 - **LTEM visual census**: available on request from dataMares
   (www.datamares.org). Build `data/ltem.parquet` with `convert_ltem.R`.
+  Transect-level survey records are not redistributed here, as they are not
+  ours to license; the reef-year and reef-level summaries the analysis depends
+  on are committed, and `03b_productivity.R` rebuilds the transect table once
+  `ltem.parquet` is in place.
 
 ## Requirements
 

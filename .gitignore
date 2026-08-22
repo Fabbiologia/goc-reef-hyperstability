@@ -10,3 +10,7 @@ data/*.parquet
 .Rproj.user
 .Rhistory
 .RData
+
+# Transect-level LTEM survey records are not ours to redistribute. The pipeline
+# rebuilds them from ltem.parquet, which is available on request from dataMares.
+analysis/data/productivity_transects.csv
