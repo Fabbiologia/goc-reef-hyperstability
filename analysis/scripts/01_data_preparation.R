@@ -202,11 +202,18 @@ message("Fleet split of Pacific landings, 2001-2025:"); print(fl)
 # -----------------------------------------------------------
 art <- av[fleet == "MENORES"]
 
-# Effort. folios (distinct landing receipts) is the trip count used as
-# the CPUE denominator throughout, and keeps continuity with the
-# earlier analysis. boat-days uses the vessel and effective-day fields
-# the raw receipts carry, and is written alongside as a sensitivity
-# check (see 04_fishery_analysis.R).
+# Effort. A trip is a distinct landing receipt (folio). The CPUE
+# denominator throughout is reef_folios, the receipts that landed at least
+# one reef species: it is the trip count that actually fished the reef.
+# folios, every artisanal receipt at the same offices, is kept alongside as
+# the comparison series. The two diverge because of fisheries that have
+# nothing to do with the reef: the jumbo squid fishery at Santa Rosalia
+# filed ~1,800 receipts a year in 2006 to 2008, fewer than 50 a year from
+# 2017 to 2024, and 1,951 in 2025. Dividing reef catch by every receipt
+# therefore inflated reef CPUE as squid left the denominator and crashed it
+# when squid returned, neither of which is a change on the reef. boat-days
+# uses the vessel and effective-day fields the raw receipts carry, and is
+# written alongside as a sensitivity check (see 04_fishery_analysis.R).
 art[, boat_days := pmax(n_embarcaciones, 1, na.rm = TRUE) *
                    pmax(dias_efectivos,  1, na.rm = TRUE)]
 
@@ -218,7 +225,11 @@ BAD_YEARS <- c(2020)
 art_all <- art[!is.na(year) & year %in% 2000:2025]
 art <- art_all[!(year %in% BAD_YEARS)]
 
-# --- (a) the four BCS Pacific offices, for the reef fishery analysis
+# --- (a) the four Gulf-coast offices of Baja California Sur, for the reef
+#         fishery analysis. CONAPESCA files them under litoral PACIFICO,
+#         which is the administrative label for the whole west coast of
+#         Mexico including the Gulf of California; geographically every one
+#         of them faces the Gulf.
 bcs <- art[estado %in% c("BAJA CALIFORNIA SUR", "BAJA CALIFORNIA") &
            grepl("LA PAZ|LORETO|SANTA ROSAL|MULEG", oficina)]
 bcs[, species := toupper(trimws(nombre_especie))]
@@ -234,15 +245,17 @@ annual <- bcs[, .(landings_kg = sum(peso_desembarcado_kg, na.rm = TRUE),
 annual[, landings_t := landings_kg / 1000]
 fwrite(annual, file.path(OUT, "artisanal_bcs_annual.csv"))
 
-yr_tot <- bcs[, .(landings_t = sum(peso_desembarcado_kg, na.rm = TRUE) / 1000,
-                  records    = .N,
-                  folios     = uniqueN(folio_aviso),
-                  boat_days  = sum(boat_days, na.rm = TRUE),
+yr_tot <- bcs[, .(landings_t   = sum(peso_desembarcado_kg, na.rm = TRUE) / 1000,
+                  reef_t       = sum(peso_desembarcado_kg[is_reef == TRUE], na.rm = TRUE) / 1000,
+                  records      = .N,
+                  folios       = uniqueN(folio_aviso),
+                  reef_folios  = uniqueN(folio_aviso[is_reef == TRUE]),
+                  boat_days    = sum(boat_days, na.rm = TRUE),
                   n_species  = uniqueN(species),
                   n_offices  = uniqueN(oficina)),
               by = year][order(year)]
 fwrite(yr_tot, file.path(OUT, "artisanal_bcs_yearly_totals.csv"))
-message(sprintf("Artisanal BCS Pacific: %s rows, %d-%d, %.0f%% of catch from reef genera",
+message(sprintf("Artisanal BCS Gulf-coast offices: %s rows, %d-%d, %.0f%% of catch from reef genera",
                 format(nrow(annual), big.mark = ","), min(annual$year), max(annual$year),
                 100 * annual[is_reef == TRUE, sum(landings_t)] / annual[, sum(landings_t)]))
 
@@ -256,7 +269,8 @@ goc <- art_all[estado %in% GOC_STATES,
            by = .(year, state = estado, oficina, species = nombre_especie,
                   genus, reef_group, is_reef, nombre_principal)]
 goc_effort <- art_all[estado %in% GOC_STATES,
-                      .(trips = uniqueN(folio_aviso),
+                      .(trips      = uniqueN(folio_aviso),
+                        reef_trips = uniqueN(folio_aviso[is_reef == TRUE]),
                         landings_t = sum(peso_desembarcado_kg, na.rm = TRUE) / 1000),
                       by = year][order(year)]
 fwrite(goc_effort, file.path(OUT, "artisanal_5state_effort.csv"))

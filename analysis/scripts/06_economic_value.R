@@ -90,7 +90,10 @@ ts <- goc[, .(all_const_M  = sum(value_const_usd, na.rm = TRUE) / 1e6,
               reef_const_M = sum(value_const_usd[is_reef == TRUE], na.rm = TRUE) / 1e6,
               reef_t       = sum(landings_t[is_reef == TRUE], na.rm = TRUE)),
           by = year][order(year)]
-ts <- merge(ts, eff[, .(year, trips)], by = "year")
+# Effort for reef catch per trip is reef_trips, the receipts that landed at
+# least one reef species. Across five states the all-receipt count is
+# dominated by shrimp, squid and sardine trips that never touch a reef.
+ts <- merge(ts, eff[, .(year, trips_all = trips, trips = reef_trips)], by = "year")
 ts[, reef_kg_per_trip := 1000 * reef_t / trips]
 ts[, reef_pct_of_all  := 100 * reef_const_M / all_const_M]
 fwrite(ts, file.path(OUT, "economic_timeseries_constant_price.csv"))

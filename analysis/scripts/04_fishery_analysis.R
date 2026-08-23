@@ -23,9 +23,11 @@ art  <- fread(file.path(DATA, "artisanal_bcs_annual.csv"))
 yt   <- fread(file.path(DATA, "artisanal_bcs_yearly_totals.csv"))
 warm <- fread(file.path(DATA, "warm_season_anomaly_annual.csv"))
 
-# Effort: folios (distinct landing receipts = trips). See the note below on
-# why boat-days cannot be used and why 2008 is a break point.
-effort <- yt[, .(year, total_folios = folios)]
+# Effort: reef_folios, the distinct landing receipts (trips) that landed at
+# least one reef species. Every receipt at the same offices (folios) is the
+# wrong denominator because the squid fishery moves it, see 01. See the note
+# below on why boat-days cannot be used and why 2008 is a break point.
+effort <- yt[, .(year, total_folios = reef_folios, all_folios = folios)]
 
 ws <- setNames(warm$ws_anom, warm$year)
 
@@ -86,10 +88,10 @@ message("Reef aggregate two-mode fit:"); print(reef_two)
 # giving annual boat-day totals up to 3e14, so the check has been removed
 # rather than reported. Distinct landing receipts (trips) is the only
 # workable effort measure in these files, and it carries its own problem:
-# the receipt count jumps sharply in 2008 with no matching change in the
-# fishery, so effort is NOT comparable across that year. Any statement about
-# effort or catch per trip in the manuscript is therefore restricted to
-# 2008 onward.
+# the receipt count rises by about a quarter in 2008 with no matching change
+# in the fishery (the exact figure is written by 07 to decoupling_summary.csv),
+# so effort is NOT comparable across that year. Any statement about effort or
+# catch per trip in the manuscript is therefore restricted to 2008 onward.
 
 # -----------------------------------------------------------
 # 2. Per-species reef targets

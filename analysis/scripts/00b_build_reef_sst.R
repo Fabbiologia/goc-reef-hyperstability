@@ -18,8 +18,8 @@
 # without modification:
 #     sst_gulf_monthly_1981_2026.csv     (02, 03d, 08, 09)
 #     sst_gulf_by_lat_degree_daily.csv   (02, 03b, 03c, 03e, 09)
-# The originals are preserved alongside as *_dashboard_legacy.csv so the two
-# can be compared and the change audited.
+# The dashboard-era originals they replace remain recoverable from git
+# history (commit 4e94858 and earlier) if the two ever need comparing.
 #
 # Three further outputs are new and carry the per reef resolution that the
 # band series could not:
@@ -138,8 +138,6 @@ message(sprintf("  %s reef cell-days | %s basin days | %s band-days",
 
 # --- backward compatible band daily file --------------------------------
 legacy_band <- file.path(ENV, "sst_gulf_by_lat_degree_daily.csv")
-if (!file.exists(file.path(ENV, "sst_gulf_by_lat_degree_daily_dashboard_legacy.csv")))
-  file.copy(legacy_band, file.path(ENV, "sst_gulf_by_lat_degree_daily_dashboard_legacy.csv"))
 fwrite(band_daily[, .(date, lat_degree, sst_mean, sst_min, sst_max, n_stations)], legacy_band)
 message(sprintf("wrote band dailies: %d cells per band on average (was 3)",
                 round(mean(band_daily$n_stations))))
@@ -194,28 +192,19 @@ bm[is.na(mean_intensity), mean_intensity := 0]
 bm[, month := sprintf("%d-%02d", yr, mo)]
 setorder(bm, yr, mo)
 legacy_mon <- file.path(ENV, "sst_gulf_monthly_1981_2026.csv")
-if (!file.exists(file.path(ENV, "sst_gulf_monthly_dashboard_legacy.csv")))
-  file.copy(legacy_mon, file.path(ENV, "sst_gulf_monthly_dashboard_legacy.csv"))
 fwrite(bm[, .(month, mhw_days, mhw_fraction, event_count, max_sst, mean_sst,
               max_intensity, mean_intensity, cumulative_intensity)], legacy_mon)
 
-# --- what moved -----------------------------------------------------------
+# --- summary -------------------------------------------------------------
 cl2 <- bm[yr %between% c(1991, 2020), .(clim = mean(mean_sst)), by = mo]
 cmp <- merge(bm, cl2, by = "mo")[, anom := mean_sst - clim][order(yr, mo)]
-old <- fread(file.path(ENV, "sst_gulf_monthly_dashboard_legacy.csv"))
-old[, `:=`(yr = as.integer(substr(month,1,4)), mo = as.integer(substr(month,6,7)))]
-ocl <- old[yr %between% c(1991,2020), .(c = mean(mean_sst)), by = mo]
-old <- merge(old, ocl, by = "mo")[, anom := mean_sst - c]
-message("\n================ WHAT MOVED ================")
-message(sprintf("April 2026 anomaly : real OISST %+.2f C   |  dashboard series %+.2f C",
-                cmp[yr==2026 & mo==4, anom], old[yr==2026 & mo==4, anom]))
-message(sprintf("largest anomaly    : %+.2f C in %s        |  %+.2f C in %s",
-                cmp[which.max(anom), anom], cmp[which.max(anom), month],
-                old[which.max(anom), anom], old[which.max(anom), month]))
-tn <- coef(lm(anom ~ I(yr + (mo-0.5)/12), data = cmp))[2]*10
-to <- coef(lm(anom ~ I(yr + (mo-0.5)/12), data = old))[2]*10
-message(sprintf("warming trend      : %.3f C/decade        |  %.3f C/decade", tn, to))
-mn <- cmp[mo %in% 5:10, .(d = sum(mhw_days)), by = yr]
-message(sprintf("heatwave days/warm season: %.0f before 2014, %.0f after (dashboard gave 23 and 70)",
+message("\n================ SUMMARY ================")
+message(sprintf("April 2026 anomaly : %+.2f C", cmp[yr == 2026 & mo == 4, anom]))
+message(sprintf("largest anomaly    : %+.2f C in %s",
+                cmp[which.max(anom), anom], cmp[which.max(anom), month]))
+message(sprintf("warming trend      : %.3f C/decade",
+                coef(lm(anom ~ I(yr + (mo-0.5)/12), data = cmp))[2]*10))
+mn <- cmp[mo %in% 5:10, .(d = sum(mhw_days)), by = yr][yr %between% c(1998, 2025)]
+message(sprintf("heatwave days/warm season: %.0f before 2014, %.0f after",
                 mn[yr < 2014, mean(d)], mn[yr >= 2014, mean(d)]))
 message("Step 00b done.")

@@ -1,9 +1,9 @@
 quantity,value
-phi_Q1_coolest,0.219
-phi_Q4_warmest,0.21
-phi_stratified_range,0.069
-warmhalf_slope_shift,-0.047
-warmhalf_p,0.409
+phi_Q1_coolest,0.255
+phi_Q4_warmest,0.243
+phi_stratified_range,0.119
+warmhalf_slope_shift,-0.022
+warmhalf_p,0.662
 gam_suggests_erosion,1
 stratified_confirms_erosion,0
 FINAL_climate_buffer_erosion_supported,0

@@ -493,30 +493,45 @@ save_fig(s3, "FigureS3_top_species", 7, 5)
 art  <- fread(file.path(DATA, "artisanal_bcs_annual.csv"))
 yt   <- fread(file.path(DATA, "artisanal_bcs_yearly_totals.csv"))
 warm <- fread(file.path(DATA, "warm_season_anomaly_annual.csv"))
-trips <- yt[, .(year, folios)]
+# Effort is reef_folios, the receipts that landed at least one reef species.
+# folios (every receipt) is kept for the comparison: the squid fishery moves
+# it by ~1,800 receipts a year and has nothing to do with the reef (see 01).
+trips <- yt[, .(year, folios = reef_folios, folios_all = folios)]
 
 reef_yr <- merge(art[is_reef == TRUE, .(landings_t = sum(landings_t)), by = year],
                  trips, by = "year")
-reef_yr[, CPUE := landings_t / pmax(folios, 1)]
+reef_yr[, CPUE     := landings_t / pmax(folios, 1)]
+reef_yr[, CPUE_all := landings_t / pmax(folios_all, 1)]
 reef_yr <- merge(reef_yr, warm, by = "year")
 
-# S6 -- total artisanal activity (landings + folios)
+# S10 -- total artisanal activity (landings + receipts). Panel b shows both
+# receipt counts: every receipt filed at the four offices, and the receipts
+# that landed a reef species. The gap between them is squid and other
+# non-reef trips. The dotted line is the 2008 change in receipt filing.
+rc <- melt(yt[, .(year, `All receipts` = folios, `Receipts landing a reef species` = reef_folios)],
+           id.vars = "year", variable.name = "series", value.name = "n")
 s6a <- ggplot(yt, aes(year, landings_t)) + geom_col(fill = ORANGE) +
   labs(x = NULL, y = "Landings (t)", title = "a")
-s6b <- ggplot(yt, aes(year, folios)) + geom_col(fill = BLUE) +
-  geom_vline(xintercept = 2022, linetype = 2) +
-  labs(x = NULL, y = "Trip notices (folios)", title = "b")
-save_fig(s6a / s6b, "FigureS10_fishery_activity", 7, 5)
+s6b <- ggplot(rc, aes(year, n, colour = series)) +
+  geom_vline(xintercept = 2007.5, linetype = 3, linewidth = 0.5, colour = "grey20") +
+  geom_line(linewidth = 0.7) + geom_point(size = 1.2) +
+  scale_colour_manual(values = c("grey45", BLUE), name = NULL) +
+  labs(x = NULL, y = "Landing receipts (trips)", title = "b") +
+  theme(legend.position = "bottom")
+save_fig(s6a / s6b, "FigureS10_fishery_activity", 7, 5.6)
 
-# S7 -- rocky reef aggregate CPUE with marine heatwave windows
+# S6 -- rocky reef aggregate CPUE with marine heatwave windows. The thin
+# dashed grey line is the same catch divided by every receipt, the
+# denominator the squid fishery moves.
 s7 <- ggplot(reef_yr, aes(year)) +
   geom_rect(data = mhw_windows, inherit.aes = FALSE,
             aes(xmin = as.integer(format(x1,"%Y")), xmax = as.integer(format(x2,"%Y")),
                 ymin = -Inf, ymax = Inf), fill = RED, alpha = 0.08) +
+  geom_line(aes(y = CPUE_all), colour = "grey55", linetype = 2, linewidth = 0.45) +
   geom_line(aes(y = CPUE), colour = "grey20") +
   geom_smooth(aes(y = CPUE), method = "loess", se = FALSE, colour = RED,
               linewidth = 0.6, span = 0.6) +
-  labs(x = NULL, y = "CPUE (t per trip)")
+  labs(x = NULL, y = "Reef catch per reef trip (t)")
 save_fig(s7, "FigureS6_reef_cpue_trend", 7, 4)
 
 # S8 -- per reef-species CPUE (the species modelled in 04)
@@ -524,7 +539,7 @@ reef_sp <- fread(file.path(DATA, "reef_species_two_mode.csv"))$species
 sp_yr <- merge(art[is_reef == TRUE & reef_group %in% reef_sp,
                    .(landings_t = sum(landings_t)), by = .(year, species = reef_group)],
                trips, by = "year")
-sp_yr[, CPUE := landings_t / pmax(folios, 1)]
+sp_yr[, CPUE := landings_t / pmax(folios, 1)]   # folios here = reef_folios (above)
 s8 <- ggplot(sp_yr, aes(year, CPUE)) +
   geom_rect(data = mhw_windows, inherit.aes = FALSE,
             aes(xmin = as.integer(format(x1,"%Y")), xmax = as.integer(format(x2,"%Y")),
@@ -532,7 +547,7 @@ s8 <- ggplot(sp_yr, aes(year, CPUE)) +
   geom_line(colour = "grey20") +
   geom_smooth(method = "loess", se = FALSE, colour = RED, linewidth = 0.6, span = 0.7) +
   facet_wrap(~species, scales = "free_y") +
-  labs(x = NULL, y = "CPUE (t per trip)")
+  labs(x = NULL, y = "Catch per reef trip (t)")
 save_fig(s8, "FigureS7_reef_species_cpue", 9, 6)
 
 # S4 -- two-timescale climate response: per-species lag scan + per-bloc two-mode
