@@ -19,8 +19,10 @@
 # Rocky reef membership is decided in 01 by genus against the LTEM reef
 # transects, not by common name.
 #
-# valor_pesos is only populated consistently from the 2022 reporting
-# reform onward, so all economic figures use 2022-2025.
+# valor_pesos is populated in more than 99% of rows in every year from 2000,
+# so the 2022-2025 window is a choice of price level, not a data constraint:
+# it is the most recent four complete years, and the constant-price series
+# values every year's catch at that level to take inflation out.
 #
 # Requires: data/artisanal_5state_annual.csv   (from 01)
 # Writes:   data/economic_5state_artisanal.csv
