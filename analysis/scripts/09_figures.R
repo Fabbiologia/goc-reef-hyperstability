@@ -224,7 +224,7 @@ p3n_c <- ggplot(rts[!is.na(slope)], aes(share, slope)) +
   geom_smooth(method = "lm", colour = RED, fill = RED, alpha = 0.15, linewidth = 0.7) +
   geom_point(size = 1.8, colour = "black") +
   labs(x = "Reef pelagic share of production (%)",
-       y = "Production response to warm years\n(% per °C, per reef)", title = "a")
+       y = "Production response to warm years\n(% per °C, per reef)", title = "b")
 
 # shares + pathway series move to the Supplementary (Fig. S5)
 save_fig(p3n_a / p3n_b + patchwork::plot_layout(heights = c(0.8, 1)),
@@ -349,7 +349,7 @@ p3d <- ggplot() +
   scale_y_continuous(limits = c(0, ymax)) +
   scale_x_continuous(breaks = seq(1998, 2024, 4)) +
   labs(x = NULL, y = "% of the 1998 to 2004 baseline",
-       title = "b") +
+       title = "c") +
   guides(colour = guide_legend(nrow = 2, order = 1),
          fill   = guide_legend(nrow = 1, order = 2)) +
   theme(legend.position = c(0.02, 0.97), legend.justification = c(0, 1),
@@ -369,7 +369,7 @@ p3e <- ggplot(dc, aes(B, l_cpue)) +
   geom_point(aes(fill = Year), shape = 21, colour = "grey20", size = 2.2, stroke = 0.3) +
   scale_fill_gradient(low = "#d6eaf8", high = "#154360", name = NULL) +
   labs(x = "Survey biomass index (reef adjusted)",
-       y = "log catch per trip", title = "c") +
+       y = "log reef catch per reef trip", title = "d") +
   theme(legend.position = "right", legend.key.width = unit(0.35, "cm"),
         legend.text = element_text(size = 6.5))
 
@@ -378,32 +378,40 @@ proj <- fread(file.path(DATA, "buffer_projection.csv"))
 pjs  <- fread(file.path(DATA, "buffer_projection_summary.csv"))
 gv <- function(q) pjs[quantity == q, value]
 
-# (d) The buffer itself: strength Phi across thermal exposure. This replaces
-# the earlier extrapolation, which failed out-of-sample validation. Phi is a
-# MEASURED quantity: Phi = 1 - dlog(P)/dlog(B), so Phi > 0 means production
-# falls proportionally less than biomass. It is flat across the observed
-# thermal range: warming does not measurably erode the compensation.
+# (a) The buffer itself: strength Phi across thermal exposure, by quartile of
+# the reef year's warm season anomaly (May to Oct, the heatwave season, as in
+# 03e/03f) and of its winter anomaly (Dec to Mar, the canopy season, 03h).
+# Phi is a MEASURED quantity: Phi = 1 - dlog(P)/dlog(B), so Phi > 0 means
+# production falls proportionally less than biomass. Summer exposure leaves
+# it flat; winter exposure points to erosion, short of significance.
 st  <- fread(file.path(DATA, "buffer_phi_stratified.csv"))
 vd  <- fread(file.path(DATA, "buffer_nonlinear_verdict.csv"))
 pm  <- fread(file.path(DATA, "buffer_phi_models.csv"))
+bs  <- fread(file.path(DATA, "buffer_phi_by_season.csv"))
 phi_all <- pm[spec == "Whole community" & cluster == "twoway", phi_at_mean]
 st[, stratum := factor(stratum, levels = stratum)]
-p3f <- ggplot(st, aes(mean_anom, phi)) +
+bs[, season := factor(season, levels = c("Warm season (May to Oct)", "Winter (Dec to Mar)"),
+                      labels = c("Warm season, May to Oct", "Winter, Dec to Mar"))]
+SEASON_COL <- c("Warm season, May to Oct" = ORANGE, "Winter, Dec to Mar" = "#1f6f9c")
+p3f <- ggplot(bs, aes(mean_anom, phi, colour = season)) +
   geom_hline(yintercept = 0, linewidth = 0.45, colour = "grey30") +
-  geom_hline(yintercept = phi_all, linetype = 3, linewidth = 0.4, colour = "#1f6f9c") +
-  geom_errorbar(aes(ymin = lo, ymax = hi), width = 0.055, linewidth = 0.5, colour = "#1f6f9c") +
-  geom_point(size = 2.6, colour = "#1f6f9c") +
-  annotate("text", x = max(st$mean_anom), y = phi_all - 0.035,
-           label = sprintf("overall buffer  \u03a6 = %.2f", phi_all),
-           hjust = 1, size = 2.5, colour = "#1f6f9c") +
-  annotate("text", x = min(st$mean_anom) - 0.03, y = -0.055, hjust = 0, size = 2.4,
+  geom_hline(yintercept = phi_all, linetype = 3, linewidth = 0.4, colour = "grey40") +
+  geom_line(linewidth = 0.45, alpha = 0.7) +
+  geom_errorbar(aes(ymin = lo, ymax = hi), width = 0.06, linewidth = 0.5) +
+  geom_point(size = 2.6) +
+  scale_colour_manual(values = SEASON_COL, name = NULL) +
+  annotate("text", x = min(bs$mean_anom) - 0.03, y = 0.40,
+           label = sprintf("whole panel  \u03a6 = %.2f", phi_all),
+           hjust = 0, size = 2.5, colour = "grey30") +
+  annotate("text", x = min(bs$mean_anom) - 0.03, y = -0.06, hjust = 0, size = 2.4,
            colour = "grey35", label = "no buffer: production tracks biomass one for one") +
-  scale_x_continuous(breaks = round(st$mean_anom, 1)) +
-  coord_cartesian(ylim = c(-0.09, 0.46)) +
-  labs(x = "Warm season temperature anomaly of the reef year (\u00b0C)",
-       y = "Buffer strength  \u03a6 = 1 \u2212 dlog(P)/dlog(B)", title = "d")
+  coord_cartesian(ylim = c(-0.09, 0.52)) +
+  labs(x = "Temperature anomaly of the reef year (\u00b0C), by exposure quartile",
+       y = "Buffer strength  \u03a6 = 1 \u2212 dlog(P)/dlog(B)", title = "a") +
+  theme(legend.position = c(0.72, 0.93), legend.background = element_blank(),
+        legend.key.height = unit(0.32, "cm"), legend.text = element_text(size = 7.5))
 
-save_fig((p3n_c | p3d) / (p3e | p3f), "Figure3_hyperstability", 8.6, 7.8)
+save_fig((p3f | p3n_c) / (p3d | p3e), "Figure3_hyperstability", 8.6, 7.8)
 save_fig(p3c, "FigureS9_reef_value", 7, 4.6)
 
 addstat("buffer_phi_overall", round(phi_all, 3))
@@ -416,6 +424,8 @@ addstat("buffer_climate_erosion_supported", vd[quantity == "FINAL_climate_buffer
 for (q in c("dphi_dC", "dphi_dC_se", "dphi_dC_p_twoway", "dphi_dC_p_wildboot",
             "buffer_panel_reefs", "buffer_panel_years", "buffer_panel_n"))
   addstat(q, fread(file.path(DATA, "buffer_phi_summary.csv"))[quantity == q, value])
+ws <- fread(file.path(DATA, "buffer_winter_summary.csv"))
+for (q in ws$quantity) addstat(paste0("winter_", q), ws[quantity == q, value])
 
 # the per-reef paired changes move to the Supplementary
 save_fig(p3a, "FigureS2_reef_paired_change", 7, 6.5)

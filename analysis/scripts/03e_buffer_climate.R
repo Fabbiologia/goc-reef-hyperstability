@@ -30,9 +30,10 @@
 # exposure is resolved to the quarter degree OISST cell nearest each reef
 # (00b). The interaction is identified from reefs that ran hotter than their
 # contemporaries in the same year, not from the passage of time. The
-# within-year between-reef contrast is 0.26 C, against 0.11 C when exposure
-# was averaged into one-degree bands, so the test carries roughly twice the
-# identifying variation; it is still reported with the full inference
+# within-year between-reef contrast is 0.26 C across all 258 surveyed reefs and
+# 0.16 C on the 75-reef panel used here, against 0.11 and 0.10 C when exposure
+# was averaged into one-degree bands, so the test carries more identifying
+# variation than before; it is still reported with the full inference
 # battery the strategy note requires.
 #
 # Inference: two-way cluster-robust (reef and year) standard errors,
