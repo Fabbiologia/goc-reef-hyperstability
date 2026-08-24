@@ -10,7 +10,8 @@
 # signal. The reef aggregate below is the fishery the manuscript is
 # about.
 #
-#   * CPUE = annual reef landings / annual total artisanal trips
+#   * CPUE = annual reef landings / annual reef trips (receipts that
+#     landed at least one reef species; see 01 for why not every receipt)
 #   * Single-lag scan k = 0..8 yr (impulse response)
 #   * Two-mode model: ws_short (lag 0-3) + ws_long (lag 4-8)
 # -----------------------------------------------------------
