@@ -622,6 +622,55 @@ s11 <- ggplot(e5, aes(factor(year), value_M, fill = st)) +
   theme(legend.position = "bottom", legend.key.size = unit(0.8, "lines"))
 save_fig(s11, "FigureS8_state_value", 7, 4.5)
 
+# S15 -- growth model temperature scenarios (03i). The manuscript's primary
+# production estimates hold Kmax at the reef's climatology; these panels show
+# what tracking the experienced temperature would change, and in which
+# direction the primary estimate is therefore conservative.
+wg <- fread(file.path(DATA, "growth_scenario_wedge.csv"))
+gt <- fread(file.path(DATA, "growth_scenario_trends.csv"))
+gw <- fread(file.path(DATA, "growth_scenario_windows.csv"))
+SCEN_LV <- c("conservative", "tracking", "extreme")
+SCEN_LB <- c(conservative = "Conservative (climatology; primary)",
+             tracking     = "Tracking (365-day experienced)",
+             extreme      = "Extreme (warm-season, all year)")
+SCEN_COL <- c(conservative = "grey25", tracking = BLUE, extreme = RED)
+wl <- melt(wg[, .(Year, conservative, tracking, extreme)], id.vars = "Year",
+           variable.name = "scenario", value.name = "m")
+wl[, base := mean(m[Year %in% 1998:2004]), by = scenario]
+wl[, idx := 100 * exp(m - base)]
+wl[, scenario := factor(scenario, SCEN_LV, SCEN_LB[SCEN_LV])]
+s15a <- ggplot(wl, aes(Year, idx, colour = scenario)) +
+  geom_hline(yintercept = 100, linetype = 3, linewidth = 0.4) +
+  geom_line(linewidth = 0.7) +
+  scale_colour_manual(values = setNames(SCEN_COL[SCEN_LV], SCEN_LB[SCEN_LV]), name = NULL) +
+  labs(x = NULL, y = "Production, % of 1998 to 2004 baseline", title = "a") +
+  theme(legend.position = "bottom") + guides(colour = guide_legend(nrow = 3))
+wgl <- melt(wg[, .(Year, anom, Tracking = gap_tracking, Extreme = gap_extreme)],
+            id.vars = c("Year", "anom"), variable.name = "scenario", value.name = "gap")
+s15b <- ggplot(wgl, aes(anom, gap, colour = scenario)) +
+  geom_hline(yintercept = 0, linewidth = 0.4, colour = "grey30") +
+  geom_smooth(method = "lm", se = FALSE, linewidth = 0.6) +
+  geom_point(size = 1.8) +
+  scale_colour_manual(values = c(Tracking = BLUE, Extreme = RED), name = NULL) +
+  labs(x = "Annual temperature anomaly (\u00b0C)",
+       y = "Production above the conservative\nestimate (%)", title = "b") +
+  theme(legend.position = "bottom")
+cons_tr <- gt[scenario == "conservative" & response == "production", pct_per_decade]
+s15c <- ggplot(gw, aes(window_days, pct_per_decade)) +
+  geom_hline(yintercept = 0, linewidth = 0.4, colour = "grey30") +
+  geom_hline(yintercept = cons_tr, linetype = 2, colour = "grey25", linewidth = 0.5) +
+  annotate("text", x = 360, y = cons_tr - 0.8, hjust = 1, size = 2.5, colour = "grey25",
+           label = sprintf("conservative: %.1f%% per decade", cons_tr)) +
+  geom_line(colour = BLUE, linewidth = 0.6) + geom_point(colour = BLUE, size = 2.4) +
+  scale_x_continuous(breaks = c(30, 90, 180, 365)) +
+  labs(x = "Temperature window before the survey (days)",
+       y = "Production trend (% per decade)", title = "c") +
+  theme(legend.position = "none")
+save_fig(s15a | s15b | s15c, "FigureS15_growth_scenarios", 10.5, 4.2)
+
+gs <- fread(file.path(DATA, "growth_scenario_summary.csv"))
+for (q in gs$quantity) addstat(paste0("scenario_", q), gs[quantity == q, value])
+
 # ===========================================================
 fwrite(rbindlist(stat_rows), file.path(OUT, "in_text_statistics.csv"))
 message("\nAll figures done. in_text_statistics.csv written.")
