@@ -86,6 +86,44 @@ p1b <- ggplot(mon, aes(dt, cumulative_intensity)) +
   labs(x = NULL, y = "MHW intensity (°C·days)",
        title = "b")
 
+# Context map: the Gulf, every surveyed reef (the 26-reef balanced panel
+# filled dark), the four landing offices, Cabo Pulmo. Natural Earth 1:50m
+# coastline via rnaturalearth; reef positions from the OISST matching table.
+suppressPackageStartupMessages({ library(sf); library(rnaturalearth) })
+wld <- ne_countries(scale = 50, returnclass = "sf")
+rcl <- fread(file.path("../data/env", "sst_reef_longterm.csv"))
+core_reefs <- unique(fread(file.path(DATA, "productivity_transects.csv"))$Reef)
+rcl[, core := Reef %in% core_reefs]
+offices <- data.frame(name = c("La Paz", "Loreto", "Santa Rosalía", "Mulegé"),
+                      lat  = c(24.14, 26.01, 27.34, 26.89),
+                      lon  = c(-110.31, -111.35, -112.27, -111.98),
+                      hj   = c(-0.12, 1.12, 1.10, -0.10))
+p1map <- ggplot() +
+  geom_sf(data = wld, fill = "grey92", colour = "grey55", linewidth = 0.3) +
+  geom_point(data = rcl[core == FALSE], aes(lon, lat), colour = BLUE,
+             size = 0.9, alpha = 0.55, stroke = 0) +
+  geom_point(data = rcl[core == TRUE], aes(lon, lat), colour = "#7b241c",
+             size = 1.7) +
+  geom_point(data = offices, aes(lon, lat), colour = "black", shape = 15, size = 2.1) +
+  geom_text(data = offices, aes(lon, lat, label = name, hjust = hj),
+            colour = "black", size = 2.5) +
+  annotate("text", x = -113.6, y = 29.9, label = "Gulf of\nCalifornia",
+           size = 3.0, fontface = "italic", colour = "grey30", lineheight = 0.9) +
+  annotate("text", x = -113.9, y = 23.6, label = "Pacific Ocean",
+           size = 2.7, fontface = "italic", colour = "grey45") +
+  annotate("text", x = -108.0, y = 27.3, label = "Mexico",
+           size = 2.7, colour = "grey45") +
+  annotate("text", x = -109.1, y = 23.20, label = "Cabo Pulmo",
+           size = 2.4, colour = "#2ca25f", fontface = "bold", hjust = 0) +
+  coord_sf(xlim = c(-115.3, -106.4), ylim = c(22.2, 31.8), expand = FALSE) +
+  labs(title = "a") +
+  theme(panel.background = element_rect(fill = "#eef4f8", colour = NA),
+        panel.grid = element_blank(),
+        axis.title = element_blank(), axis.text = element_text(size = 6.5))
+
+save_fig(p1map | ((p1a + labs(title = "b")) / (p1b + labs(title = "c"))),
+         "Figure1_climate_context", 9.6, 5.6)
+
 prof_csv <- file.path(DATA, "smartwatch_profiles.csv")
 if (file.exists(prof_csv)) {
   pr <- fread(prof_csv)   # expects: phase, depth_m, temp_C  (+ optional anom_C)
@@ -164,7 +202,8 @@ p2d <- reef_panel(fcd[panel == "d"], to_lv,
                   setNames(c(16,15), to_lv),
                   "d",
                   "Reef-adjusted log-turnover\n(deviation from reef mean)", brk = 4)
-save_fig((p2a | p2b) / (p2c | p2d), "Figure2_reef_community", 8.2, 7.6)
+# Figure 2 is saved further down: its panel (e), the survey against the
+# landings with the estimated break, is built in the fishery block below.
 
 # Headline production and turnover numbers, traceable
 pt <- fread(file.path(DATA, "productivity_panel_trends.csv"))
@@ -224,7 +263,7 @@ p3n_c <- ggplot(rts[!is.na(slope)], aes(share, slope)) +
   geom_smooth(method = "lm", colour = RED, fill = RED, alpha = 0.15, linewidth = 0.7) +
   geom_point(size = 1.8, colour = "black") +
   labs(x = "Reef pelagic share of production (%)",
-       y = "Production response to warm years\n(% per °C, per reef)", title = "b")
+       y = "Production response to warm years\n(% per °C, per reef)", title = NULL)
 
 # shares + pathway series move to the Supplementary (Fig. S5)
 save_fig(p3n_a / p3n_b + patchwork::plot_layout(heights = c(0.8, 1)),
@@ -356,7 +395,7 @@ p3d <- ggplot() +
   scale_y_continuous(limits = c(0, ymax)) +
   scale_x_continuous(breaks = seq(1998, 2024, 4)) +
   labs(x = NULL, y = "% of the 1998 to 2004 baseline",
-       title = "c") +
+       title = "e") +
   guides(colour = guide_legend(nrow = 2, order = 1),
          fill   = guide_legend(nrow = 1, order = 2)) +
   theme(legend.position = c(0.02, 0.97), legend.justification = c(0, 1),
@@ -376,7 +415,7 @@ p3e <- ggplot(dc, aes(B, l_cpue)) +
   geom_point(aes(fill = Year), shape = 21, colour = "grey20", size = 2.2, stroke = 0.3) +
   scale_fill_gradient(low = "#d6eaf8", high = "#154360", name = NULL) +
   labs(x = "Survey biomass index (reef adjusted)",
-       y = "log reef catch per reef trip", title = "d") +
+       y = "log reef catch per reef trip", title = NULL) +
   theme(legend.position = "right", legend.key.width = unit(0.35, "cm"),
         legend.text = element_text(size = 6.5))
 
@@ -418,7 +457,63 @@ p3f <- ggplot(bs, aes(mean_anom, phi, colour = season)) +
   theme(legend.position = c(0.72, 0.93), legend.background = element_blank(),
         legend.key.height = unit(0.32, "cm"), legend.text = element_text(size = 7.5))
 
-save_fig((p3f | p3n_c) / (p3d | p3e), "Figure3_hyperstability", 8.6, 7.8)
+# (b) Phi on either side of the pre-registered 2014 era boundary (03j)
+pe <- fread(file.path(DATA, "buffer_phi_era.csv"))
+es <- fread(file.path(DATA, "buffer_era_summary.csv"))
+pe[, era := factor(era, levels = era)]
+p_era <- ggplot(pe, aes(era, phi)) +
+  geom_hline(yintercept = 0, linewidth = 0.45, colour = "grey30") +
+  geom_hline(yintercept = phi_all, linetype = 3, linewidth = 0.4, colour = "grey40") +
+  geom_errorbar(aes(ymin = lo, ymax = hi), width = 0.08, linewidth = 0.55, colour = "#1f6f9c") +
+  geom_point(size = 3, colour = "#1f6f9c") +
+  annotate("text", x = 1.5, y = 0.44,
+           label = sprintf("shift %.2f, p = %s",
+                           as.numeric(es[quantity == "phi_era_shift", value]),
+                           es[quantity == "phi_era_shift_p", value]),
+           size = 2.6, colour = "grey25") +
+  annotate("text", x = 0.62, y = -0.055, hjust = 0, size = 2.4, colour = "grey35",
+           label = "no buffer") +
+  coord_cartesian(ylim = c(-0.09, 0.52)) +
+  labs(x = NULL, y = "Buffer strength  \u03a6", title = "b")
+
+# (c) catch per reef trip with its estimated break: flat, then falling
+ds <- fread(file.path(DATA, "decoupling_summary.csv"))
+gq <- function(k) as.numeric(ds[quantity == k, value])
+cb <- gq("cpue_break_year")
+cp <- dc[Year >= 2008][order(Year)]
+cp[, seg := fifelse(Year <= cb, "pre", "post")]
+fits <- rbindlist(lapply(split(cp, cp$seg), function(d)
+  data.table(Year = d$Year, fit = exp(fitted(lm(log(cpue) ~ Year, d))), seg = d$seg[1])))
+p_slip <- ggplot(cp, aes(Year, cpue)) +
+  geom_vline(xintercept = cb + 0.5, linetype = 3, linewidth = 0.5, colour = "grey25") +
+  geom_line(colour = "grey55", linewidth = 0.4) +
+  geom_point(size = 1.7, colour = "grey20") +
+  geom_line(data = fits, aes(Year, fit, group = seg), colour = RED, linewidth = 0.8) +
+  annotate("text", x = 2011.5, y = 1.62,
+           label = sprintf("%+.1f%% per year (p = %.2f)", gq("cpue_slope_pre"), gq("cpue_p_pre")),
+           size = 2.6, colour = RED) +
+  annotate("text", x = 2022, y = 1.30,
+           label = sprintf("%+.1f%% per year (p < 0.001)\nslope change p = %.3f",
+                           gq("cpue_slope_post"), gq("cpue_p_change")),
+           size = 2.6, colour = RED, lineheight = 1) +
+  annotate("text", x = cb + 0.35, y = 0.66, angle = 90, hjust = 0, vjust = 0,
+           size = 2.3, colour = "grey25",
+           label = sprintf("break: %d (CI %d to %d)", cb, gq("cpue_ci_lo"), gq("cpue_ci_hi"))) +
+  scale_x_continuous(breaks = seq(2008, 2024, 4)) +
+  coord_cartesian(ylim = c(0.6, 1.75)) +
+  labs(x = NULL, y = "Reef catch per reef trip (t)", title = "c")
+
+save_fig((p3f | p_era) / p_slip + patchwork::plot_layout(heights = c(1, 0.7)),
+         "Figure3_hyperstability", 8.6, 7.6)
+
+# Figure 2, complete with its records panel (e)
+save_fig((p2a | p2b) / (p2c | p2d) / p3d +
+           patchwork::plot_layout(heights = c(1, 1, 0.72)),
+         "Figure2_reef_community", 8.2, 9.6)
+
+# the subsidy scatter and the beta test move to the Supplementary
+save_fig(p3n_c, "FigureS16_pelagic_subsidy", 6.4, 4.8)
+save_fig(p3e,   "FigureS17_hyperstability_test", 7.2, 5.2)
 save_fig(p3c, "FigureS9_reef_value", 7, 4.6)
 
 addstat("buffer_phi_overall", round(phi_all, 3))
