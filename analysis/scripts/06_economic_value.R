@@ -117,6 +117,9 @@ add_ts("trips_2025",                     ts[year == 2025, trips])
 add_ts("reef_cpue_peak_kg_per_trip",     round(ts[year == pk$year, reef_kg_per_trip]))
 add_ts("reef_cpue_2021_2025_kg_per_trip", round(rec$cpue))
 add_ts("reef_cpue_pct_below_peak",       round(100 * (rec$cpue / ts[year == pk$year, reef_kg_per_trip] - 1), 1))
+tp <- ts[which.max(reef_t)]
+add_ts("reef_t_5state_peak_year",           tp$year)
+add_ts("reef_t_5state_2021_2025_pct_vs_peak", round(100 * (ts[year >= 2021, mean(reef_t)] / tp$reef_t - 1)))
 
 # -----------------------------------------------------------
 # (b) La Paz + Loreto reef species value  (Figure 3b)

@@ -1,0 +1,10 @@
+quantity,value
+phi_era_pre,0.256
+phi_era_pre_lo,0.186
+phi_era_pre_hi,0.325
+phi_era_post,0.14
+phi_era_post_lo,0.015
+phi_era_post_hi,0.266
+phi_era_shift,-0.061
+phi_era_shift_se,0.064
+phi_era_shift_p,0.34

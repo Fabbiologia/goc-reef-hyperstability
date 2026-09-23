@@ -333,9 +333,16 @@ hd <- hd[mo %in% 5:10 & Year %in% 1998:2025,
 ymax <- max(c(f2c$idx, lnd$idx), na.rm = TRUE) * 1.05
 hd[, bar := mhw_days / max(mhw_days) * ymax * 0.30]
 
+# the year this panel's own landings series breaks (Bai-Perron, from 07):
+# fitted growth ends here; a last local peak follows, then the slide
+brk <- as.numeric(fread(file.path(DATA, "decoupling_summary.csv"))[
+  quantity == "landings5_break_year", value])
 p3d <- ggplot() +
   geom_col(data = hd, aes(Year, bar, fill = "Marine heatwave days per warm season"),
            alpha = 0.30, width = 0.85) +
+  geom_vline(xintercept = brk + 0.5, linetype = 3, linewidth = 0.5, colour = "grey25") +
+  annotate("text", x = brk + 0.15, y = 128, angle = 90, hjust = 0, vjust = 0,
+           size = 2.3, colour = "grey25", label = "the growth ends") +
   scale_fill_manual(values = c("Marine heatwave days per warm season" = RED), name = NULL) +
   geom_hline(yintercept = 100, linetype = 3, linewidth = 0.4, colour = "grey35") +
   geom_line(data = lnd, aes(Year, idx, colour = "Reef landings"),

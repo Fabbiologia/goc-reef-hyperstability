@@ -22,7 +22,7 @@
 #         data/decoupling_summary.csv  (Figure 3c is drawn in 09_figures.R)
 # -----------------------------------------------------------
 
-suppressPackageStartupMessages({ library(arrow); library(data.table) })
+suppressPackageStartupMessages({ library(arrow); library(data.table); library(strucchange) })
 setwd("..")
 DATA <- "data"; OUT <- "data"
 
@@ -84,6 +84,50 @@ add("receipts_jump_2008_pct_5state_all_trips",  round(100 * (j5$trips[2] / j5$tr
 add("landings_change_2008_pct_5state",          round(100 * (j5$landings_t[2] / j5$landings_t[1] - 1)))
 add("receipts_2009_2011_vs_2007_pct_5state",
     round(100 * (mean(e5[year %in% 2009:2011, trips]) / j5$trips[1] - 1)))
+# When did the records turn? The mask's own lifetime, estimated from the
+# fishery series alone. A single Bai-Perron break in a level-and-trend
+# model of log catch per reef trip over the effort-comparable window
+# (2008 onward), and the same for log reef landings. The break is
+# ESTIMATED, with its confidence interval, not chosen; where it lands is
+# for the text to say.
+phase_break <- function(x, year) {
+  ok <- is.finite(x); x <- x[ok]; year <- year[ok]
+  dd <- data.table(l = log(x), Year = year)[order(Year)]
+  bp <- breakpoints(l ~ Year, data = dd, h = 5, breaks = 1)
+  br <- dd$Year[bp$breakpoints]
+  ci <- tryCatch(confint(bp)$confint, error = function(e) NULL)
+  ci_lo <- if (!is.null(ci)) dd$Year[max(1, ci[1])] else NA
+  ci_hi <- if (!is.null(ci)) dd$Year[min(nrow(dd), ci[3])] else NA
+  s1 <- lm(l ~ Year, dd[Year <= br]); s2 <- lm(l ~ Year, dd[Year > br])
+  mi <- lm(l ~ Year * I(Year > br), dd)
+  list(break_year = br, ci_lo = ci_lo, ci_hi = ci_hi,
+       slope_pre  = 100 * (exp(coef(s1)[2]) - 1), p_pre  = summary(s1)$coefficients[2, 4],
+       slope_post = 100 * (exp(coef(s2)[2]) - 1), p_post = summary(s2)$coefficients[2, 4],
+       p_change   = summary(mi)$coefficients[4, 4])
+}
+pb_c <- with(d[Year >= BREAK_YEAR], phase_break(cpue, Year))
+pb_l <- with(yt[year >= BREAK_YEAR & year != 2020], phase_break(reef_t, year))
+message(sprintf("\nCPUE break: %d (CI %s-%s); slope %+.1f%%/yr (p = %.2f) then %+.1f%%/yr (p = %.3f); slope change p = %.3f",
+                pb_c$break_year, pb_c$ci_lo, pb_c$ci_hi, pb_c$slope_pre, pb_c$p_pre,
+                pb_c$slope_post, pb_c$p_post, pb_c$p_change))
+message(sprintf("Landings break: %d; slope %+.1f%%/yr (p = %.2f) then %+.1f%%/yr (p = %.3f)",
+                pb_l$break_year, pb_l$slope_pre, pb_l$p_pre, pb_l$slope_post, pb_l$p_post))
+for (k in names(pb_c)) add(paste0("cpue_", k),     round(unlist(pb_c[k]), 3))
+for (k in names(pb_l)) add(paste0("landings_", k), round(unlist(pb_l[k]), 3))
+e5 <- fread(file.path(DATA, "economic_timeseries_constant_price.csv"))
+pb_5 <- with(e5[year >= BREAK_YEAR & year != 2020], phase_break(reef_t, year))
+message(sprintf("5-state landings break: %d (CI %s-%s); slope %+.1f%%/yr (p = %.2f) then %+.1f%%/yr (p = %.3f)",
+                pb_5$break_year, pb_5$ci_lo, pb_5$ci_hi, pb_5$slope_pre, pb_5$p_pre,
+                pb_5$slope_post, pb_5$p_post))
+for (k in names(pb_5)) add(paste0("landings5_", k), round(unlist(pb_5[k]), 3))
+add("landings_4office_peak_year",        yt[which.max(reef_t), year])
+add("landings_4office_2025_pct_vs_peak", round(100 * (yt[year == 2025, reef_t] / max(yt$reef_t) - 1)))
+# the collapse the mask hid: survey index vs catch per trip, 2009 to 2011
+add("survey_index_2009", round(d[Year == 2009, B], 2))
+add("survey_index_2011", round(d[Year == 2011, B], 2))
+add("cpue_pct_of_base_2009", round(100 * d[Year == 2009, cpue] / d[Year <= 2004, mean(cpue)]))
+add("cpue_pct_of_base_2011", round(100 * d[Year == 2011, cpue] / d[Year <= 2004, mean(cpue)]))
+
 # Reef effort and catch per reef trip, for the text.
 cp <- yt[!(year %in% 2020)][order(year)]
 pk <- cp[year >= BREAK_YEAR][which.max(reef_t / reef_folios)]

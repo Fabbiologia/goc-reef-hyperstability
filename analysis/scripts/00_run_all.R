@@ -57,6 +57,7 @@ steps <- c(
   "03g_thermal_confounding.R", # checks that thermal exposure is heat, not geography
   "03h_buffer_winter.R",       # the buffer against winter exposure (Fig 3a, both seasons)
   "03i_growth_scenarios.R",    # growth-model temperature scenarios (Fig S15, Table S6)
+  "03j_buffer_era.R",          # Phi before vs during the heatwave era
   "04_fishery_analysis.R",     # CPUE two-mode + lag scans
   "05_variation_partitioning.R",
   "06_economic_value.R",       # 5-state + La Paz/Loreto ex-vessel value
