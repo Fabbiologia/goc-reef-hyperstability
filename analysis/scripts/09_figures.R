@@ -188,20 +188,63 @@ p2b <- reef_panel(f2[panel == "b"], fish_lv,
 # rising pace of renewal, the engine that keeps catch coming off a shrinking
 # stock (the precondition for hyperstability tested in Figure 3c).
 fcd <- fread(file.path(DATA, "productivity_fig2cd_residuals.csv"))
-sf_lv <- c("Standing biomass", "Biomass production")
-p2c <- reef_panel(fcd[panel == "c"], sf_lv,
-                  setNames(c("#1f77b4","#c0392b"), sf_lv),
-                  setNames(c("solid","dashed"), sf_lv),
-                  setNames(c(16,15), sf_lv),
-                  "c",
-                  "Reef-adjusted log-value\n(deviation from reef mean)", brk = 4)
+
+# (c) The stock against the flow as % of the 1998-2004 baseline (03d's
+# buffer_timeseries), the deck's construction: both series start at 100,
+# the wedge between them from 2010 onward is the compensation the fishery
+# has been landing, and the endpoints carry the numbers the text quotes.
+bt <- fread(file.path(DATA, "buffer_timeseries.csv"))
+SF_COL <- c("Standing biomass" = "#1f77b4", "Biomass production" = "#c0392b")
+btw <- dcast(bt, Year ~ group, value.var = "idx")
+setnames(btw, c("Standing biomass", "Biomass production"), c("bio", "prod"))
+wedge <- btw[Year >= 2010 & prod > bio]
+p2c <- ggplot(bt, aes(Year, idx, colour = group, fill = group)) +
+  geom_rect(data = mhwyr, inherit.aes = FALSE,
+            aes(xmin = x1, xmax = x2, ymin = -Inf, ymax = Inf), fill = "grey80", alpha = 0.5) +
+  geom_ribbon(data = wedge, inherit.aes = FALSE, aes(Year, ymin = bio, ymax = prod),
+              fill = "#c0392b", alpha = 0.10) +
+  geom_hline(yintercept = 100, linetype = 3, linewidth = 0.4, colour = "grey35") +
+  geom_ribbon(aes(ymin = idx_lo, ymax = idx_hi), alpha = 0.15, colour = NA) +
+  geom_line(linewidth = 0.7) +
+  geom_point(size = 1.4) +
+  scale_colour_manual(values = SF_COL, guide = "none") +
+  scale_fill_manual(values = SF_COL, guide = "none") +
+  annotate("text", x = 2025.7, y = btw[Year == 2025, prod],
+           label = sprintf("production\n%.0f%%", btw[Year == 2025, prod]),
+           hjust = 0, size = 2.4, colour = "#c0392b", lineheight = 0.9, fontface = "bold") +
+  annotate("text", x = 2025.7, y = btw[Year == 2025, bio],
+           label = sprintf("biomass\n%.0f%%", btw[Year == 2025, bio]),
+           hjust = 0, size = 2.4, colour = "#1f77b4", lineheight = 0.9, fontface = "bold") +
+  scale_x_continuous(breaks = seq(1998, 2024, 4), limits = c(1997.5, 2031.5)) +
+  labs(x = NULL, y = "% of the 1998 to 2004 baseline", title = "c") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+# (d) Turnover on the same scale: the rate that rose as the stock fell
 to_lv <- c("Whole community", "Commercial species")
-p2d <- reef_panel(fcd[panel == "d"], to_lv,
-                  setNames(c("#1f77b4","#7b241c"), to_lv),
-                  setNames(c("solid","dashed"), to_lv),
-                  setNames(c(16,15), to_lv),
-                  "d",
-                  "Reef-adjusted log-turnover\n(deviation from reef mean)", brk = 4)
+tod <- fcd[panel == "d"]
+tod[, base := mean(mean[Year %in% 1998:2004]), by = group]
+tod[, `:=`(idx = 100 * exp(mean - base),
+           idx_lo = 100 * exp(mean - ci95 - base),
+           idx_hi = 100 * exp(mean + ci95 - base))]
+tod[, group := factor(group, levels = to_lv)]
+p2d <- ggplot(tod, aes(Year, idx, colour = group, fill = group)) +
+  geom_rect(data = mhwyr, inherit.aes = FALSE,
+            aes(xmin = x1, xmax = x2, ymin = -Inf, ymax = Inf), fill = "grey80", alpha = 0.5) +
+  geom_hline(yintercept = 100, linetype = 3, linewidth = 0.4, colour = "grey35") +
+  geom_ribbon(aes(ymin = idx_lo, ymax = idx_hi), alpha = 0.15, colour = NA) +
+  geom_line(aes(linetype = group), linewidth = 0.7) +
+  geom_point(aes(shape = group), size = 1.4) +
+  scale_colour_manual(values = setNames(c("#1f77b4","#7b241c"), to_lv)) +
+  scale_fill_manual(values = setNames(c("#1f77b4","#7b241c"), to_lv)) +
+  scale_linetype_manual(values = setNames(c("solid","dashed"), to_lv)) +
+  scale_shape_manual(values = setNames(c(16,15), to_lv)) +
+  scale_x_continuous(breaks = seq(1998, 2024, 4)) +
+  labs(x = NULL, y = "% of the 1998 to 2004 baseline", title = "d",
+       colour = NULL, fill = NULL, linetype = NULL, shape = NULL) +
+  theme(legend.position = c(0.015, 0.97), legend.justification = c(0, 1),
+        legend.background = element_rect(fill = alpha("white", 0.7), colour = NA),
+        legend.key.size = unit(0.8, "lines"), legend.text = element_text(size = 7),
+        axis.text.x = element_text(angle = 45, hjust = 1))
 # Figure 2 is saved further down: its panel (e), the survey against the
 # landings with the estimated break, is built in the fishery block below.
 
