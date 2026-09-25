@@ -216,7 +216,7 @@ p2c <- ggplot(bt, aes(Year, idx, colour = group, fill = group)) +
            label = sprintf("biomass\n%.0f%%", btw[Year == 2025, bio]),
            hjust = 0, size = 2.4, colour = "#1f77b4", lineheight = 0.9, fontface = "bold") +
   scale_x_continuous(breaks = seq(1998, 2024, 4), limits = c(1997.5, 2031.5)) +
-  labs(x = NULL, y = "% of the 1998 to 2004 baseline", title = "c") +
+  labs(x = NULL, y = "% of the 1998 to 2004 baseline", title = "b") +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
 # (d) Turnover on the same scale: the rate that rose as the stock fell
@@ -227,24 +227,26 @@ tod[, `:=`(idx = 100 * exp(mean - base),
            idx_lo = 100 * exp(mean - ci95 - base),
            idx_hi = 100 * exp(mean + ci95 - base))]
 tod[, group := factor(group, levels = to_lv)]
+TO_COL <- setNames(c("#1f77b4", "#7b241c"), to_lv)
+tow <- dcast(tod, Year ~ group, value.var = "idx")
 p2d <- ggplot(tod, aes(Year, idx, colour = group, fill = group)) +
   geom_rect(data = mhwyr, inherit.aes = FALSE,
             aes(xmin = x1, xmax = x2, ymin = -Inf, ymax = Inf), fill = "grey80", alpha = 0.5) +
   geom_hline(yintercept = 100, linetype = 3, linewidth = 0.4, colour = "grey35") +
   geom_ribbon(aes(ymin = idx_lo, ymax = idx_hi), alpha = 0.15, colour = NA) +
-  geom_line(aes(linetype = group), linewidth = 0.7) +
-  geom_point(aes(shape = group), size = 1.4) +
-  scale_colour_manual(values = setNames(c("#1f77b4","#7b241c"), to_lv)) +
-  scale_fill_manual(values = setNames(c("#1f77b4","#7b241c"), to_lv)) +
-  scale_linetype_manual(values = setNames(c("solid","dashed"), to_lv)) +
-  scale_shape_manual(values = setNames(c(16,15), to_lv)) +
-  scale_x_continuous(breaks = seq(1998, 2024, 4)) +
-  labs(x = NULL, y = "% of the 1998 to 2004 baseline", title = "d",
-       colour = NULL, fill = NULL, linetype = NULL, shape = NULL) +
-  theme(legend.position = c(0.015, 0.97), legend.justification = c(0, 1),
-        legend.background = element_rect(fill = alpha("white", 0.7), colour = NA),
-        legend.key.size = unit(0.8, "lines"), legend.text = element_text(size = 7),
-        axis.text.x = element_text(angle = 45, hjust = 1))
+  geom_line(linewidth = 0.7) +
+  geom_point(size = 1.4) +
+  scale_colour_manual(values = TO_COL, guide = "none") +
+  scale_fill_manual(values = TO_COL, guide = "none") +
+  annotate("text", x = 2025.7, y = tow[Year == 2025, `Commercial species`],
+           label = sprintf("commercial\n%.0f%%", tow[Year == 2025, `Commercial species`]),
+           hjust = 0, vjust = 0.2, size = 2.4, colour = "#7b241c", lineheight = 0.9, fontface = "bold") +
+  annotate("text", x = 2025.7, y = tow[Year == 2025, `Whole community`],
+           label = sprintf("whole\ncommunity\n%.0f%%", tow[Year == 2025, `Whole community`]),
+           hjust = 0, vjust = 0.75, size = 2.4, colour = "#1f77b4", lineheight = 0.9, fontface = "bold") +
+  scale_x_continuous(breaks = seq(1998, 2024, 4), limits = c(1997.5, 2031.5)) +
+  labs(x = NULL, y = "% of the 1998 to 2004 baseline", title = "c") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
 # Figure 2 is saved further down: its panel (e), the survey against the
 # landings with the estimated break, is built in the fishery block below.
 
@@ -438,10 +440,11 @@ p3d <- ggplot() +
   scale_y_continuous(limits = c(0, ymax)) +
   scale_x_continuous(breaks = seq(1998, 2024, 4)) +
   labs(x = NULL, y = "% of the 1998 to 2004 baseline",
-       title = "e") +
+       title = "d") +
   guides(colour = guide_legend(nrow = 2, order = 1),
          fill   = guide_legend(nrow = 1, order = 2)) +
-  theme(legend.position = c(0.02, 0.97), legend.justification = c(0, 1),
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),
+        legend.position = c(0.02, 0.97), legend.justification = c(0, 1),
         legend.spacing.y = unit(0, "cm"), legend.margin = margin(0,0,0,0),
         legend.background = element_rect(fill = alpha("white", 0.75), colour = NA),
         legend.key.size = unit(0.8, "lines"), legend.text = element_text(size = 6.8))
@@ -549,10 +552,11 @@ p_slip <- ggplot(cp, aes(Year, cpue)) +
 save_fig((p3f | p_era) / p_slip + patchwork::plot_layout(heights = c(1, 0.7)),
          "Figure3_hyperstability", 8.6, 7.6)
 
-# Figure 2, complete with its records panel (e)
-save_fig((p2a | p2b) / (p2c | p2d) / p3d +
-           patchwork::plot_layout(heights = c(1, 1, 0.72)),
-         "Figure2_reef_community", 8.2, 9.6)
+# Figure 2: tropicalisation, stock against flow, turnover, the records
+save_fig((p2a | p2c) / (p2d | p3d), "Figure2_reef_community", 8.6, 7.8)
+
+# the fish-groups panel moves to the Supplementary
+save_fig(p2b + labs(title = NULL), "FigureS18_fish_groups", 6.6, 4.8)
 
 # the subsidy scatter and the beta test move to the Supplementary
 save_fig(p3n_c, "FigureS16_pelagic_subsidy", 6.4, 4.8)
