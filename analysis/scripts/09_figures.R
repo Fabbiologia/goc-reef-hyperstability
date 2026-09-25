@@ -4,8 +4,8 @@
 # absent external (Python) generator: every figure is rebuilt
 # from the pipeline CSVs in manuscript/data/.
 #
-# Outputs (figures/): Figure1_climate_signal, Figure2_reef_community,
-# Figure3_hyperstability (4 panels incl. the buffer projection), FigureS1..S13
+# Outputs (figures/): Figure1_climate_context, Figure2_reef_community,
+# Figure3_hyperstability (the buffer and its erosion), FigureS1..S18
 # (PDF + PNG; S14 is written by 08_gap_analysis.R), and a
 # traceable in_text_statistics.csv with every number quoted in
 # the manuscript.
@@ -124,24 +124,6 @@ p1map <- ggplot() +
 save_fig(p1map | ((p1a + labs(title = "b")) / (p1b + labs(title = "c"))),
          "Figure1_climate_context", 9.6, 5.6)
 
-prof_csv <- file.path(DATA, "smartwatch_profiles.csv")
-if (file.exists(prof_csv)) {
-  pr <- fread(prof_csv)   # expects: phase, depth_m, temp_C  (+ optional anom_C)
-  p1c <- ggplot(pr, aes(temp_C, depth_m, colour = phase)) +
-    geom_path(linewidth = 0.8) + scale_y_reverse() +
-    scale_colour_manual(values = c(Before = BLUE, During = RED, After = "grey50")) +
-    labs(x = "Temperature (°C)", y = "Depth (m)", colour = NULL,
-         title = "c")
-  p1d <- ggplot(pr[phase == "During"], aes(depth_m)) +
-    labs(title = "d")
-  fig1 <- (p1a | p1b) / (p1c | p1d)
-  save_fig(fig1, "Figure1_climate_signal", 9, 7)
-} else {
-  message("NOTE: data/smartwatch_profiles.csv absent -> Figure 1 c,d not regenerated; ",
-          "writing Figure1ab_climate_regenerated and leaving the deposited 4-panel Figure1 intact.")
-  fig1 <- p1a / p1b
-  save_fig(fig1, "Figure1ab_climate_regenerated", 7, 5)
-}
 
 # ===========================================================
 # FIGURE 2 -- reef community reorganisation (reef-adjusted residuals)
