@@ -410,7 +410,7 @@ pa <- ggplot(bins, aes(band, rel_to_normal_pct,
   scale_fill_manual(values = c(`TRUE` = RED, `FALSE` = BLUE), guide = "none") +
   scale_x_discrete(labels = function(x) gsub(" \\(", "\n(", x)) +
   labs(x = NULL, y = "Biomass vs normal years (%)",
-       title = "a   Reef fish tolerate warm years until about +0.6 \u00b0C")
+       title = "a")
 
 szb <- data.table(anom = seq(min(comm$ws_anom), max(comm$ws_anom), length.out = 50))
 szb[, pct := 100 * (exp(size[term == "ws_anom", estimate] * anom) - 1)]
@@ -418,8 +418,7 @@ pb <- ggplot(szb, aes(anom, pct)) +
   geom_hline(yintercept = 0, linewidth = 0.3) +
   geom_line(colour = RED, linewidth = 0.8) +
   labs(x = "Warm-season anomaly (\u00b0C)", y = "Mean body size change (%)",
-       title = sprintf("b   Fish are smaller in warm years (p = %.3f)",
-                       size[term == "ws_anom", p]))
+       title = "b")
 
 pd <- data.table(
   stratum = factor(c("open to fishing", "MPA, fishing allowed",
@@ -432,7 +431,7 @@ pc_fig <- ggplot(pd, aes(pct, stratum, fill = pct < 0)) +
   geom_col(width = 0.7) + geom_vline(xintercept = 0, linewidth = 0.3) +
   scale_fill_manual(values = c(`TRUE` = RED, `FALSE` = BLUE), guide = "none") +
   labs(x = "Change in reef fish biomass, 1998-2013 to 2014-2025 (%)", y = NULL,
-       title = "c   Only enforced no-take held its biomass")
+       title = "c")
 
 sl <- data.table(
   grp = factor(c("targeted by the fishery", "not targeted"),
@@ -443,7 +442,7 @@ pdd <- ggplot(sl, aes(beta, grp, fill = grp)) +
   scale_fill_manual(values = c(`targeted by the fishery` = RED,
                                `not targeted` = GREY), guide = "none") +
   labs(x = "Change in log biomass per +1 \u00b0C", y = NULL,
-       title = "d   Fished taxa lose most per degree of warming")
+       title = "d")
 
 fig <- (pa | pb) / (pc_fig | pdd)
 ggsave(file.path("figures", "FigureS14_gap_analysis.pdf"), fig, width = 9.5, height = 6.5)
