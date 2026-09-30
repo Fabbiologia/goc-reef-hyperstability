@@ -38,8 +38,8 @@ Python 3 with `openpyxl`.
 | `05_variation_partitioning.R` | Borcard partitioning of survey biomass into climate vs fishery components | `varpart_two_mode.csv` |
 | `06_economic_value.R` | Ex-vessel value at constant 2022–2025 prices, five states and La Paz/Loreto | `economic_*.csv` |
 | `07_decoupling.R` | The hyperstability test (β against the independent survey index); Bai–Perron breaks dating when each fishery series turned | `decoupling_*.csv` |
-| `08_gap_analysis.R` | Climate vs fishing vs combined; protection contrasts; Figure S14 | `gap_*.csv` |
-| `09_figures.R` | All figures (1–3, S1–S13, S15–S18) and the traceable in-text numbers | `Figure*.pdf/.png`, `in_text_statistics.csv` |
+| `08_gap_analysis.R` | Climate vs fishing vs combined; protection contrasts; year-clustered attribution limits; Figure S5 | `gap_*.csv` |
+| `09_figures.R` | All figures (1–3, S1–S4, S6–S18) and the traceable in-text numbers | `Figure*.pdf/.png`, `in_text_statistics.csv` |
 
 Document builds (`build_word.sh`, `build_gcb.sh`, `docx_linenums_pagenums.py`)
 also live here; the archived Science Advances builds are in

@@ -7,6 +7,14 @@ body_size_beta_ws_anom,-0.0416
 body_size_beta_ws_anom_p,0.00268
 anomaly_quadratic_term,-0.0812
 anomaly_quadratic_term_p,0.0839
+yearclust_trend_p,0.0323
+yearclust_anomaly_p,0.321
+yearclust_quadratic_p,0.558
+yearclust_body_size_p,0.298
+annual_anomaly_p,0.297
+annual_anomaly_with_trend_p,0.797
+anomaly_year_corr,0.42
+n_annual_indices,27
 biomass_pct_vs_normal_extreme_band,0.8
 biomass_pct_vs_normal_warm_band,12.8
 cool_year_baseline_shift_pct,-9.4

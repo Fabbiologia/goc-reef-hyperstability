@@ -56,13 +56,13 @@ steps <- c(
   "03f_buffer_nonlinear.R",    # smooth alternative + model-free arbiter
   "03g_thermal_confounding.R", # checks that thermal exposure is heat, not geography
   "03h_buffer_winter.R",       # the buffer against winter exposure (Fig 3a, both seasons)
-  "03i_growth_scenarios.R",    # growth-model temperature scenarios (Fig S15, Table S6)
+  "03i_growth_scenarios.R",    # growth-model temperature scenarios (Fig S8, Table S4)
   "03j_buffer_era.R",          # Phi before vs during the heatwave era
   "04_fishery_analysis.R",     # CPUE two-mode + lag scans
   "05_variation_partitioning.R",
   "06_economic_value.R",       # 5-state + La Paz/Loreto ex-vessel value
   "07_decoupling.R",           # survey vs landings: hyperstability test
-  "08_gap_analysis.R",         # climate vs fishing vs combined; Figure S14
+  "08_gap_analysis.R",         # climate vs fishing vs combined; year-clustered limits; Figure S5
   "09_figures.R"               # all figures + in_text_statistics.csv (runs last)
 )
 

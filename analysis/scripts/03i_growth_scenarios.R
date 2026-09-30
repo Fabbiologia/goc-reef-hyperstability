@@ -143,7 +143,10 @@ message(sprintf("Reef-year temperatures: %d reef years; tracking (365 d) runs %.
 fish <- merge(fish, temps, by = c("Reef", "Year"))
 scenario_temp <- c(conservative = "t_clim", tracking = "t365", extreme = "t_warm",
                    track30 = "t30", track90 = "t90", track180 = "t180")
-for (v in scenario_temp) fish[, (v) := round(get(v), 1)]
+# the climatology is rounded as in 03b (0.01 C) so that the conservative
+# scenario reproduces the primary estimates exactly; the experienced
+# temperatures are rounded to 0.1 C to keep the Kmax grid tractable
+for (v in scenario_temp) fish[, (v) := round(get(v), if (v == "t_clim") 2 else 1)]
 
 grid <- unique(rbindlist(lapply(scenario_temp, function(v)
   fish[, .(species_std, MaxSizeTL, Diet, Position, Method, sstmean = get(v))])))

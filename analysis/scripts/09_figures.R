@@ -6,7 +6,7 @@
 #
 # Outputs (figures/): Figure1_climate_context, Figure2_reef_community,
 # Figure3_hyperstability (the buffer and its erosion), FigureS1..S18
-# (PDF + PNG; S14 is written by 08_gap_analysis.R), and a
+# (PDF + PNG; S5 is written by 08_gap_analysis.R), and a
 # traceable in_text_statistics.csv with every number quoted in
 # the manuscript.
 #
@@ -294,7 +294,7 @@ p3n_c <- ggplot(rts[!is.na(slope)], aes(share, slope)) +
 
 # shares + pathway series move to the Supplementary (Fig. S5)
 save_fig(p3n_a / p3n_b + patchwork::plot_layout(heights = c(0.8, 1)),
-         "FigureS5_energy_pathways", 7.5, 7.2)
+         "FigureS9_energy_pathways", 7.5, 7.2)
 
 addstat("pelagic_pct_individuals", psh[pathway == "Pelagic (planktivory)", round(pct_individuals, 1)])
 addstat("pelagic_pct_production",  psh[pathway == "Pelagic (planktivory)", round(pct_production, 1)])
@@ -538,12 +538,12 @@ save_fig((p3f | p_era) / p_slip + patchwork::plot_layout(heights = c(1, 0.7)),
 save_fig((p2a | p2c) / (p2d | p3d), "Figure2_reef_community", 8.6, 7.8)
 
 # the fish-groups panel moves to the Supplementary
-save_fig(p2b + labs(title = NULL), "FigureS18_fish_groups", 6.6, 4.8)
+save_fig(p2b + labs(title = NULL), "FigureS2_fish_groups", 6.6, 4.8)
 
 # the subsidy scatter and the beta test move to the Supplementary
-save_fig(p3n_c, "FigureS16_pelagic_subsidy", 6.4, 4.8)
-save_fig(p3e,   "FigureS17_hyperstability_test", 7.2, 5.2)
-save_fig(p3c, "FigureS9_reef_value", 7, 4.6)
+save_fig(p3n_c, "FigureS10_pelagic_subsidy", 6.4, 4.8)
+save_fig(p3e,   "FigureS16_hyperstability_test", 7.2, 5.2)
+save_fig(p3c, "FigureS15_reef_value", 7, 4.6)
 
 addstat("buffer_phi_overall", round(phi_all, 3))
 addstat("buffer_phi_coolest_quartile", round(st[1, phi], 3))
@@ -559,7 +559,7 @@ ws <- fread(file.path(DATA, "buffer_winter_summary.csv"))
 for (q in ws$quantity) addstat(paste0("winter_", q), ws[quantity == q, value])
 
 # the per-reef paired changes move to the Supplementary
-save_fig(p3a, "FigureS2_reef_paired_change", 7, 6.5)
+save_fig(p3a, "FigureS3_reef_paired_change", 7, 6.5)
 
 # economic in-text numbers
 es <- fread(file.path(DATA, "economic_summary.csv"))
@@ -606,14 +606,14 @@ if (file.exists(latf)) {
   save_fig(s1, "FigureS1_sst_by_latitude", 8, 5)
 }
 
-# S2 -- fish functional-group warming sensitivity
+# S7 -- fish functional-group warming sensitivity
 fg <- fread(file.path(DATA, "fish_functional_group_warming.csv"))
 save_fig(coefbar(fg, "Functional_group", "Functional-group warming sensitivity",
                  "β on warm-season anomaly (Δlog-biomass per +1 °C)") +
            theme(plot.title = element_text(size = 10, face = "bold")),
-         "FigureS4_funcgroup_warming", 7, 4.5)
+         "FigureS7_funcgroup_warming", 7, 4.5)
 
-# S3 -- per reef-group decadal biomass trend. This shows the TREND, which is
+# S4 -- per reef-group decadal biomass trend. This shows the TREND, which is
 # identified at the reef level and is what the main text cites, rather than the
 # warm-season sensitivity, which is a year-level regressor and unresolved.
 gt <- fread(file.path(DATA, "reef_group_trend.csv"))
@@ -625,7 +625,7 @@ s3 <- ggplot(gt, aes(pct_per_decade, lab, fill = sig)) +
                     labels = c(`TRUE` = "p < 0.05", `FALSE` = "not significant")) +
   labs(x = "Biomass trend (% per decade, reef-clustered)", y = NULL) +
   theme(legend.position = "bottom")
-save_fig(s3, "FigureS3_top_species", 7, 5)
+save_fig(s3, "FigureS4_top_species", 7, 5)
 
 # Reconstruct reef CPUE from 01's artisanal tables (matches 04).
 # Industrial vessels were dropped in 01 and the non-reef blocs (small
@@ -645,7 +645,7 @@ reef_yr[, CPUE     := landings_t / pmax(folios, 1)]
 reef_yr[, CPUE_all := landings_t / pmax(folios_all, 1)]
 reef_yr <- merge(reef_yr, warm, by = "year")
 
-# S10 -- total artisanal activity (landings + receipts). Panel b shows both
+# S12 -- total artisanal activity (landings + receipts). Panel b shows both
 # receipt counts: every receipt filed at the four offices, and the receipts
 # that landed a reef species. The gap between them is squid and other
 # non-reef trips. The dotted line is the 2008 change in receipt filing.
@@ -659,9 +659,9 @@ s6b <- ggplot(rc, aes(year, n, colour = series)) +
   scale_colour_manual(values = c("grey45", BLUE), name = NULL) +
   labs(x = NULL, y = "Landing receipts (trips)", title = "b") +
   theme(legend.position = "bottom")
-save_fig(s6a / s6b, "FigureS10_fishery_activity", 7, 5.6)
+save_fig(s6a / s6b, "FigureS12_fishery_activity", 7, 5.6)
 
-# S6 -- rocky reef aggregate CPUE with marine heatwave windows. The thin
+# S11 -- rocky reef aggregate CPUE with marine heatwave windows. The thin
 # dashed grey line is the same catch divided by every receipt, the
 # denominator the squid fishery moves.
 s7 <- ggplot(reef_yr, aes(year)) +
@@ -673,9 +673,9 @@ s7 <- ggplot(reef_yr, aes(year)) +
   geom_smooth(aes(y = CPUE), method = "loess", se = FALSE, colour = RED,
               linewidth = 0.6, span = 0.6) +
   labs(x = NULL, y = "Reef catch per reef trip (t)")
-save_fig(s7, "FigureS6_reef_cpue_trend", 7, 4)
+save_fig(s7, "FigureS11_reef_cpue_trend", 7, 4)
 
-# S8 -- per reef-species CPUE (the species modelled in 04)
+# S13 -- per reef-species CPUE (the species modelled in 04)
 reef_sp <- fread(file.path(DATA, "reef_species_two_mode.csv"))$species
 sp_yr <- merge(art[is_reef == TRUE & reef_group %in% reef_sp,
                    .(landings_t = sum(landings_t)), by = .(year, species = reef_group)],
@@ -689,9 +689,9 @@ s8 <- ggplot(sp_yr, aes(year, CPUE)) +
   geom_smooth(method = "loess", se = FALSE, colour = RED, linewidth = 0.6, span = 0.7) +
   facet_wrap(~species, scales = "free_y") +
   labs(x = NULL, y = "Catch per reef trip (t)")
-save_fig(s8, "FigureS7_reef_species_cpue", 9, 6)
+save_fig(s8, "FigureS13_reef_species_cpue", 9, 6)
 
-# S4 -- two-timescale climate response: per-species lag scan + per-bloc two-mode
+# S17 -- two-timescale climate response: per-species lag scan + per-bloc two-mode
 lagsp <- fread(file.path(DATA, "lag_scan_per_species.csv"))
 focus <- head(reef_sp, 4)
 s4a <- ggplot(lagsp[species %in% focus], aes(lag, beta, colour = species)) +
@@ -710,17 +710,17 @@ s4b <- ggplot(bml, aes(beta, bloc, fill = mode)) +
   geom_vline(xintercept = 0, linewidth = 0.3) +
   labs(x = "β on warm-season anomaly", y = NULL, title = "b") +
   theme(legend.position = "bottom")
-save_fig(s4a / s4b, "FigureS11_lag_effects", 7, 7)
+save_fig(s4a / s4b, "FigureS17_lag_effects", 7, 7)
 
-# S5 -- per-bloc long-run CPUE trend (%/yr) + two-mode sensitivity
+# S18 -- per-bloc long-run CPUE trend (%/yr) + two-mode sensitivity
 bm[, year_pct := (exp(beta_year) - 1) * 100]
 s5a <- ggplot(bm[order(year_pct)], aes(year_pct, factor(bloc, levels = bloc))) +
   geom_col(fill = BLUE) + geom_vline(xintercept = 0, linewidth = 0.3) +
   labs(x = "CPUE trend (%/yr)", y = NULL, title = "a")
 s5 <- s5a / s4b
-save_fig(s5, "FigureS12_reef_fishery", 7, 7)
+save_fig(s5, "FigureS18_reef_fishery", 7, 7)
 
-# S9 -- Borcard variance partitioning
+# S6 -- Borcard variance partitioning
 vp <- fread(file.path(DATA, "varpart_two_mode.csv"))
 vpl <- melt(vp[, .(species, `Pure fishery` = pure_fishery, `Pure climate` = pure_climate,
                    Shared = shared, Unexplained = unexplained)],
@@ -732,9 +732,9 @@ s9 <- ggplot(vpl, aes(pct, species, fill = component)) +
                                Shared = GREEN, Unexplained = GREY), name = NULL) +
   labs(x = "Share of explained + unexplained variance (%)", y = NULL) +
   theme(legend.position = "bottom")
-save_fig(s9, "FigureS13_variance_partitioning", 7, 4)
+save_fig(s9, "FigureS6_variance_partitioning", 7, 4)
 
-# S11 -- five-state artisanal value composition (moved out of Figure 3)
+# S14 -- five-state artisanal value composition (moved out of Figure 3)
 e5 <- fread(file.path(DATA, "economic_5state_artisanal.csv"))
 e5[, value_M := value_usd / 1e6]
 st_disp <- c("SINALOA"="Sinaloa","BAJA CALIFORNIA SUR"="B.C. Sur","SONORA"="Sonora",
@@ -751,9 +751,9 @@ s11 <- ggplot(e5, aes(factor(year), value_M, fill = st)) +
   scale_y_continuous(limits = c(0, max(tot$tot_M) * 1.12), expand = expansion(mult = c(0, 0.03))) +
   labs(x = "Year", y = "Small-scale market value (million US$)") +
   theme(legend.position = "bottom", legend.key.size = unit(0.8, "lines"))
-save_fig(s11, "FigureS8_state_value", 7, 4.5)
+save_fig(s11, "FigureS14_state_value", 7, 4.5)
 
-# S15 -- growth model temperature scenarios (03i). The manuscript's primary
+# S8 -- growth model temperature scenarios (03i). The manuscript's primary
 # production estimates hold Kmax at the reef's climatology; these panels show
 # what tracking the experienced temperature would change, and in which
 # direction the primary estimate is therefore conservative.
@@ -797,7 +797,7 @@ s15c <- ggplot(gw, aes(window_days, pct_per_decade)) +
   labs(x = "Temperature window before the survey (days)",
        y = "Production trend (% per decade)", title = "c") +
   theme(legend.position = "none")
-save_fig(s15a | s15b | s15c, "FigureS15_growth_scenarios", 10.5, 4.2)
+save_fig(s15a | s15b | s15c, "FigureS8_growth_scenarios", 10.5, 4.2)
 
 gs <- fread(file.path(DATA, "growth_scenario_summary.csv"))
 for (q in gs$quantity) addstat(paste0("scenario_", q), gs[quantity == q, value])

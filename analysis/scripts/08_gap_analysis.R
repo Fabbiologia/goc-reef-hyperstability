@@ -31,21 +31,11 @@
 # anomaly is a YEAR-level variable with only 27 distinct values, but every
 # model below fits it across thousands of TRANSECTS and clusters standard
 # errors on REEF. Reef clustering does not fix this: the correct cluster for
-# a year-level regressor is the year. Re-tested with year-clustered errors:
-#
-#     quantity                    naive p   reef p    YEAR p
-#     year trend (the decline)    3e-15     2e-08     0.023   survives
-#     community warming response  0.006     0.031     0.444   DIES
-#     threshold (quadratic)       0.017     0.040     0.452   DIES
-#     mean body size vs anomaly   0.003     0.020     0.486   DIES
-#     per-group warming classes   various   various   all >0.13 except Wrasses
-#
-# At the year level (27 annual reef-adjusted indices) the warming response is
-# p = 0.32 alone and p = 0.93 once a year trend is included, and the anomaly
-# is correlated with year at r = 0.46, so warming cannot be separated from the
-# secular trend. Using latitude-resolved SST with year fixed effects does not
-# rescue it either: the coefficient flips to +0.75, which is spatial
-# confounding across the four latitude degrees in the balanced panel.
+# a year-level regressor is the year. Section 1.6 re-tests the year trend, the
+# anomaly response, the quadratic term and the body size response with errors
+# clustered on YEAR, and repeats the anomaly test on the 27 annual reef-adjusted
+# indices; the results are written to gap_climate_yearclust.csv and quoted in
+# the manuscript from there.
 #
 # CONSEQUENCE: the biomass DECLINE is real and survives; its ATTRIBUTION to
 # warming is not identified by these data. Any beta_anom or threshold result
@@ -212,6 +202,37 @@ bins <- comm[, .(mean_l_b_adj = mean(l_b_adj), sd = sd(l_b_adj),
 bins[, rel_to_normal_pct := round(100 * (exp(mean_l_b_adj -
         bins[band == "near normal (-0.25 to 0.25)", mean_l_b_adj]) - 1), 1)]
 res$gap_climate_anomaly_bands <- bins
+
+# 1.6 The year-level limit, computed. The anomaly takes one value per year, so
+#     reef-clustered errors overstate its precision; the correct cluster is the
+#     year. Every climate coefficient above is re-tested with errors clustered
+#     on year, and the anomaly test is repeated on 27 annual reef-adjusted
+#     indices, with and without a linear year trend.
+yc <- rbindlist(list(
+  report(m_anom, comm$Year, "Year",         "year trend (year-clustered)"),
+  report(m_anom, comm$Year, "ws_anom",      "anomaly response (year-clustered)"),
+  report(m_quad, comm$Year, "I(ws_anom^2)", "quadratic term (year-clustered)"),
+  report(m_size, sz$Year,   "ws_anom",      "body size vs anomaly (year-clustered)")))
+ann <- comm[, .(idx = mean(l_b_adj), ws_anom = ws_anom[1]), by = Year][order(Year)]
+m_a1 <- lm(idx ~ ws_anom, data = ann)
+m_a2 <- lm(idx ~ ws_anom + Year, data = ann)
+yc <- rbind(yc, data.table(
+  model = c("annual indices: anomaly alone", "annual indices: anomaly + year trend"),
+  term = "ws_anom",
+  estimate = c(coef(m_a1)[["ws_anom"]], coef(m_a2)[["ws_anom"]]),
+  se = c(summary(m_a1)$coefficients["ws_anom", 2], summary(m_a2)$coefficients["ws_anom", 2]),
+  t = c(summary(m_a1)$coefficients["ws_anom", 3], summary(m_a2)$coefficients["ws_anom", 3]),
+  p = c(summary(m_a1)$coefficients["ws_anom", 4], summary(m_a2)$coefficients["ws_anom", 4])), fill = TRUE)
+res$gap_climate_yearclust <- yc
+print(yc)
+add("yearclust_trend_p",          signif(yc[model == "year trend (year-clustered)", p], 3))
+add("yearclust_anomaly_p",        signif(yc[model == "anomaly response (year-clustered)", p], 3))
+add("yearclust_quadratic_p",      signif(yc[model == "quadratic term (year-clustered)", p], 3))
+add("yearclust_body_size_p",      signif(yc[model == "body size vs anomaly (year-clustered)", p], 3))
+add("annual_anomaly_p",           signif(yc[model == "annual indices: anomaly alone", p], 3))
+add("annual_anomaly_with_trend_p", signif(yc[model == "annual indices: anomaly + year trend", p], 3))
+add("anomaly_year_corr",          round(cor(ann$ws_anom, ann$Year), 2))
+add("n_annual_indices",           nrow(ann))
 message("Reef-centred biomass by warm-season anomaly band:"); print(bins)
 add("biomass_pct_vs_normal_extreme_band",
     bins[band == "extreme (> 0.6)", rel_to_normal_pct])
@@ -445,9 +466,9 @@ pdd <- ggplot(sl, aes(beta, grp, fill = grp)) +
        title = "d")
 
 fig <- (pa | pb) / (pc_fig | pdd)
-ggsave(file.path("figures", "FigureS14_gap_analysis.pdf"), fig, width = 9.5, height = 6.5)
-ggsave(file.path("figures", "FigureS14_gap_analysis.png"), fig, width = 9.5, height = 6.5, dpi = 300)
-message("wrote FigureS14_gap_analysis (.pdf/.png)")
+ggsave(file.path("figures", "FigureS5_gap_analysis.pdf"), fig, width = 9.5, height = 6.5)
+ggsave(file.path("figures", "FigureS5_gap_analysis.png"), fig, width = 9.5, height = 6.5, dpi = 300)
+message("wrote FigureS5_gap_analysis (.pdf/.png)")
 
 # ===========================================================
 # 4. TROPICALISATION, AND WHETHER IT REACHES THE FISH

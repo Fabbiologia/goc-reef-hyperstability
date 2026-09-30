@@ -210,6 +210,14 @@ rp_summary <- data.table(
   ci_lo     = 100 * (exp(tt$conf.int[1]) - 1),
   ci_hi     = 100 * (exp(tt$conf.int[2]) - 1),
   p_value   = tt$p.value)
+# the same estimate without the enforced no-take reserve, where fishing is
+# excluded: if protection cushions the loss, dropping it should enlarge it
+cabo <- unique(ltem[MPA == "Cabo Pulmo", Reef])
+px   <- paired[!(Reef %in% cabo)]
+ttx  <- t.test(px$log_ratio)
+rp_summary[, `:=`(n_reefs_excl_cabo  = nrow(px),
+                  pct_mean_excl_cabo = 100 * (exp(mean(px$log_ratio)) - 1),
+                  p_value_excl_cabo  = ttx$p.value)]
 fwrite(rp_summary, file.path(OUT, "reef_paired_summary.csv"))
 message(sprintf("Reef-paired change: %+.1f%% [%.1f to %.1f], p=%.4f, %d of %d reefs down",
         rp_summary$pct_mean, rp_summary$ci_lo, rp_summary$ci_hi,
