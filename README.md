@@ -1,1 +1,60 @@
 # goc-reef-hyperstability
+
+## The pipeline
+
+Run from `analysis/scripts/`:
+
+```
+Rscript 00_run_all.R
+```
+
+which executes, each as an isolated process:
+
+| Step | What it does |
+|---|---|
+| `01a_ingest_conapesca_raw.py` | tidy Pacific wild-capture extract from the raw government landing receipts (skipped if cached) |
+| `01_data_preparation.R` | artisanal landings, reef-species classification, SST/MHW copy |
+| `02_climate_analysis.R` | SST trend and warm-season anomaly |
+| `03_ltem_analysis.R` | reef-fixed-effect biomass trends, Figure 2 trajectories |
+| `03b_productivity.R` | biomass production and turnover on the balanced 26-reef panel |
+| `03c_pathways.R` | energy pathways and the subsidy interaction |
+| `03d_buffer.R` | the buffer over time and its rate under fishing only, climate only and both |
+| `03e_buffer_climate.R` | buffer strength Phi and the test of whether warming erodes it |
+| `03f_buffer_nonlinear.R` | smooth alternative plus the model-free stratified arbiter |
+| `04_fishery_analysis.R` | CPUE models and lag scans |
+| `05_variation_partitioning.R` | climate-versus-fishery variance partitioning |
+| `06_economic_value.R` | ex-vessel value, five states and La Paz/Loreto |
+| `07_decoupling.R` | survey versus landings: the hyperstability test |
+| `08_gap_analysis.R` | climate, fishing and their combined effect |
+| `09_figures.R` | all figures and `in_text_statistics.csv` |
+
+A fresh checkout with the raw inputs in `data/` rebuilds every intermediate
+CSV in `analysis/data/` and every figure in `analysis/figures/`. Because the
+derived intermediates are committed, steps `09` (figures) and most statistical
+summaries can be re-run and inspected without any raw data.
+
+## Data access
+
+- **NOAA OISST v2.1** (sea surface temperature): freely available from NCEI.
+  The derived Gulf series used by the pipeline are committed in `data/env/`.
+- **CONAPESCA landing receipts** ("avisos de arribo", ~5.4 GB, 2000 to 2026):
+  public records available on request from CONAPESCA. Place the yearly files
+  in `data/CONAPESCA Raw/` and `01a` rebuilds the tidy extract.
+- **LTEM visual census**: available on request from dataMares
+  (www.datamares.org). Build `data/ltem.parquet` with `convert_ltem.R`.
+  Transect-level survey records are not redistributed here, as they are not
+  ours to license; the reef-year and reef-level summaries the analysis depends
+  on are committed, and `03b_productivity.R` rebuilds the transect table once
+  `ltem.parquet` is in place.
+
+## Requirements
+
+R (>= 4.3) with `data.table`, `arrow`, `ggplot2`, `patchwork`, `lubridate`,
+and `rfishprod` (github.com/renatoamorais/rfishprod); Python 3 with
+`openpyxl` for the raw ingest step.
+
+## License
+
+Code is released under the MIT License (see `LICENSE`). Data files derived
+from third-party sources (NOAA, CONAPESCA, LTEM) remain subject to their
+providers' terms.
